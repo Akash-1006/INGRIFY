@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="purple_200">#FFBB86FC</color>
+    <color name="purple_500">#FF6200EE</color>
+    <color name="purple_700">#FF3700B3</color>
+    <color name="teal_200">#FF03DAC5</color>
+    <color name="teal_700">#FF018786</color>
+    <color name="black">#000000</color>
+    <color name="white">#FFFFFF</color>
+    <color name="lightblue">#CBE2FF</color>
+
+    <color name="input_text_color_dark_mode">#000000</color>
+    <color name="input_hint_color_dark_mode">#757575</color>
+    <color name="input_box_stroke_color_dark_mode">#D9D9D9</color>
+    <color name="input_box_background_color_dark_mode">#FFFFFFFF</color>
+    <color name="password_toggle_blue">#4A90E2</color>
+
+    <color name="input_box_background_color_light_mode">#FFFFFFFF</color>
+    <color name="input_text_color_light_mode">#000000</color>
+    <color name="input_hint_color_light_mode">#757575</color>
+    <color name="input_box_stroke_color_light_mode">#757575</color>
+    <color name="text_input_box_stroke_color">@color/input_box_stroke_color_dark_mode</color>
+    <color name="bottom_nav_selected_color">#4A90E2</color>
+    <color name="bottom_nav_unselected_color">#D9D9D9</color>
+    <color name="colorPrimary">#6200EE</color>
+    <color name="colorPrimaryDark">#3700B3</color>
+    <color name="colorAccent">#03DAC5</color>
+    <color name="blue_icon_color">#4285F4</color>
+
+
+</resources>
