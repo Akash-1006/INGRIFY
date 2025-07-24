@@ -35,12 +35,11 @@ class LoginActivity : AppCompatActivity() {
             if (username.isEmpty() || password.isEmpty()) {
                 Toast.makeText(this, "Please enter username and password", Toast.LENGTH_SHORT).show()
             } else {
-                // Here you would typically send data to a backend for user authentication
+                // Here you would typically send data to. a backend for user authentication
                 Toast.makeText(this, "Attempting login for $username...", Toast.LENGTH_LONG).show()
-                // For now, let's navigate to MainActivity after a simulated successful login
-                val intent = Intent(this, MainActivity::class.java)
+                val intent = Intent(this, HomeActivity::class.java)
                 startActivity(intent)
-                finish() // Finish LoginActivity so user cannot go back
+                finish()
             }
         }
     }

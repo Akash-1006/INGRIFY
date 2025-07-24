@@ -5,11 +5,13 @@ import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import java.util.concurrent.TimeUnit
+import com.ingrify.app.AnalysisResponse
+
 
 object RetrofitClient {
 
 
-    private const val BASE_URL = "http://192.168.1.2:5000/"
+    private const val BASE_URL = "https://ln466gtw-5000.inc1.devtunnels.ms/"
 
     private val logging = HttpLoggingInterceptor().apply {
         level = HttpLoggingInterceptor.Level.BODY
@@ -30,4 +32,8 @@ object RetrofitClient {
             .build()
             .create(ApiService::class.java)
     }
+    private val retrofit = Retrofit.Builder()
+        .baseUrl(BASE_URL)
+        .addConverterFactory(GsonConverterFactory.create()) // Even if you're using raw response
+        .build()
 }

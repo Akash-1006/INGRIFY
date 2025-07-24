@@ -61,7 +61,8 @@
                 android:layout_marginStart="8dp"
                 android:padding="8dp"
                 android:src="@drawable/ic_darkmode"
-                app:tint="@color/password_toggle_blue" />
+                app:tint="@color/password_toggle_blue"
+                tools:ignore="ContentDescription,ImageContrastCheck" />
 
             <TextView
                 android:layout_width="0dp"
@@ -120,7 +121,8 @@
                 android:layout_marginStart="8dp"
                 android:padding="8dp"
                 android:src="@drawable/ic_notifications"
-                app:tint="@color/password_toggle_blue" />
+                app:tint="@color/password_toggle_blue"
+                tools:ignore="ContentDescription,ImageContrastCheck" />
 
             <TextView
                 android:layout_width="0dp"
@@ -178,7 +180,8 @@
                 android:layout_marginStart="8dp"
                 android:padding="8dp"
                 android:src="@drawable/ic_permission"
-                app:tint="@color/password_toggle_blue" />
+                app:tint="@color/password_toggle_blue"
+                tools:ignore="ContentDescription,ImageContrastCheck" />
 
             <TextView
                 android:layout_width="wrap_content"
@@ -224,7 +227,8 @@
                 android:layout_marginStart="8dp"
                 android:padding="8dp"
                 android:src="@drawable/ic_help"
-                app:tint="@color/password_toggle_blue" />
+                app:tint="@color/password_toggle_blue"
+                tools:ignore="ContentDescription,ImageContrastCheck" />
 
             <TextView
                 android:layout_width="wrap_content"
@@ -271,7 +275,8 @@
                 android:layout_marginStart="12dp"
                 android:padding="8dp"
                 android:src="@drawable/ic_info"
-                app:tint="@color/password_toggle_blue" />
+                app:tint="@color/password_toggle_blue"
+                tools:ignore="ContentDescription,ImageContrastCheck" />
 
             <TextView
                 android:layout_width="wrap_content"

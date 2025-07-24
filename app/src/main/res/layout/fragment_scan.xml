@@ -41,36 +41,21 @@
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
-
-    <androidx.cardview.widget.CardView
-        android:id="@+id/card_image_placeholder"
-        android:layout_width="183dp"
-        android:layout_height="174dp"
-        app:cardCornerRadius="28dp"
-        app:cardElevation="0dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.5 "
-        app:layout_constraintStart_toStartOf="parent"
-        tools:ignore="MissingConstraints">
-
-
-
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:background="@drawable/dashed_border"
-            android:gravity="center"
-            android:orientation="vertical">
-
             <ImageView
-                android:layout_width="62dp"
-                android:layout_height="57dp"
+                android:id="@+id/imageview"
+                android:layout_width="183dp"
+                android:layout_height="174dp"
+                android:layout_gravity="center"
+                android:layout_margin="16dp"
+                android:scaleType="centerInside"
                 android:contentDescription="Image Placeholder"
+                android:background="@drawable/dashed_border"
                 android:src="@drawable/ic_scan"
-                app:tint="@color/password_toggle_blue" />
-        </LinearLayout>
-    </androidx.cardview.widget.CardView>
+                app:tint="@color/password_toggle_blue"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                tools:ignore="MissingConstraints" />
 
     <com.google.android.material.button.MaterialButton
         android:id="@+id/btn_start_scan"
@@ -90,7 +75,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.496"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/card_image_placeholder"
+        app:layout_constraintTop_toBottomOf="@+id/imageview"
         tools:ignore="MissingConstraints" />
 
     <com.google.android.material.button.MaterialButton
