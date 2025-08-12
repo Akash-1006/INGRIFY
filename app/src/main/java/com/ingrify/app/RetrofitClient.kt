@@ -5,7 +5,8 @@ import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import java.util.concurrent.TimeUnit
-import com.ingrify.app.AnalysisResponse
+import com.ingrify.app.AnalysisResult
+import com.ingrify.app.IngredientSearchResponse
 
 
 object RetrofitClient {
@@ -19,9 +20,9 @@ object RetrofitClient {
 
     private val okHttpClient = OkHttpClient.Builder()
         .addInterceptor(logging)
-        .connectTimeout(30, TimeUnit.SECONDS)
-        .readTimeout(30, TimeUnit.SECONDS)
-        .writeTimeout(30, TimeUnit.SECONDS)
+        .connectTimeout(60, TimeUnit.SECONDS)
+        .readTimeout(60, TimeUnit.SECONDS)
+        .writeTimeout(60, TimeUnit.SECONDS)
         .build()
 
     val apiService: ApiService by lazy {
@@ -34,6 +35,6 @@ object RetrofitClient {
     }
     private val retrofit = Retrofit.Builder()
         .baseUrl(BASE_URL)
-        .addConverterFactory(GsonConverterFactory.create()) // Even if you're using raw response
+        .addConverterFactory(GsonConverterFactory.create())
         .build()
 }

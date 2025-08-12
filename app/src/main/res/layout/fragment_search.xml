@@ -8,7 +8,7 @@
     android:id="@+id/search_page">
 
     <ImageView
-        android:id="@+id/iv_back_button_login"
+        android:id="@+id/iv_back_button_search"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
@@ -29,7 +29,7 @@
         android:text="Search"
         android:textColor="#000000"
         android:textSize="24sp"
-        app:layout_constraintStart_toEndOf="@+id/iv_back_button_login"
+        app:layout_constraintStart_toEndOf="@+id/iv_back_button_search"
         app:layout_constraintTop_toTopOf="parent" />
 
     <com.google.android.material.textfield.TextInputLayout
@@ -64,21 +64,9 @@
             android:inputType="text"
             android:maxLines="1"
             android:textColor="#000000"
-            android:paddingTop="16dp"
+            android:paddingTop="24dp"
             android:paddingBottom="16dp" />
     </com.google.android.material.textfield.TextInputLayout>
-    <TextView
-        android:id="@+id/tv_search_results"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="4dp"
-        android:layout_marginTop="32dp"
-        android:fontFamily="@font/poppins_medium"
-        android:text="Search"
-        android:textColor="#000000"
-        android:textSize="24sp"
-        app:layout_constraintStart_toEndOf="@id/card_popular_sles"
-        app:layout_constraintTop_toTopOf="parent" />
 
     <ScrollView
         android:layout_width="0dp"
@@ -382,6 +370,18 @@
                         android:textSize="16sp" />
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
+
         </androidx.constraintlayout.widget.ConstraintLayout>
     </ScrollView>
+    <ProgressBar
+        android:id="@+id/progress_bar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        android:focusable="true"
+        android:clickable="true"
+        app:layout_constraintTop_toTopOf="parent" />
 </androidx.constraintlayout.widget.ConstraintLayout>
