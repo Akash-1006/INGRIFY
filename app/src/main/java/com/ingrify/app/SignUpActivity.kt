@@ -66,11 +66,10 @@ class SignUpActivity : AppCompatActivity() {
                         if (response.isSuccessful && response.body() != null) {
                             val loginResponse = response.body()
                             val token = loginResponse?.token
-                            val returnedUserName = loginResponse?.userName // Get name from response if provided
+                            val returnedUserName = loginResponse?.userName
 
                             if (token != null) {
                                 UserSessionManager.saveAuthToken(token)
-                                // If backend didn't send name, use the one from input for immediate display
                                 UserSessionManager.saveUserName(returnedUserName ?: name)
                                 Toast.makeText(this@SignUpActivity, loginResponse.message, Toast.LENGTH_SHORT).show()
                                 val intent = Intent(this@SignUpActivity, HomeActivity::class.java)

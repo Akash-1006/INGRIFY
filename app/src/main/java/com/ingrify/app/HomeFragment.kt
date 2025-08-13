@@ -54,11 +54,11 @@ class HomeFragment : Fragment() {
         }
 
         view.findViewById<MaterialCardView>(R.id.card_allergen).setOnClickListener {
-
-            Toast.makeText(context, "Allergen Card Clicked!", Toast.LENGTH_SHORT).show()
-            // If you uncommented this for an Activity, keep in mind fragment navigation is different.
-            // val intent = Intent(requireContext(), AllergenActivity::class.java)
-            // startActivity(intent)
+            val allergenFragment = AllergenFragment()
+            parentFragmentManager.beginTransaction()
+                .replace(R.id.fragment_container, allergenFragment)
+                .addToBackStack(null)
+                .commit()
         }
     }
 

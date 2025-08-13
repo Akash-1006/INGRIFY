@@ -38,6 +38,7 @@ class HomeActivity : AppCompatActivity() {
             selectedFragment?.let { fragment ->
                 supportFragmentManager.beginTransaction()
                     .replace(R.id.fragment_container, fragment)
+                    .addToBackStack(null)
                     .commit()
                 true
             } ?: false

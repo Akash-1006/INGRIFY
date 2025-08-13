@@ -52,7 +52,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/Allergen_title"
-        app:endIconDrawable="@drawable/ic_search"
+        app:endIconDrawable="@drawable/ic_save"
         app:endIconTint="#000000"
         app:endIconMode="custom">
 

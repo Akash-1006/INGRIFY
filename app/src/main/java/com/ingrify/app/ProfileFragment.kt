@@ -37,9 +37,7 @@ class ProfileFragment : Fragment() {
 
         // Set OnClickListener for the back button
         backButton.setOnClickListener {
-            // Or if not using Navigation Component, you might use:
-            // activity?.onBackPressed()
-            Toast.makeText(context, "Back button clicked", Toast.LENGTH_SHORT).show()
+            parentFragmentManager.popBackStack()
         }
 
         // Set OnClickListeners for MaterialCardViews

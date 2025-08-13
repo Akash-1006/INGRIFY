@@ -2,7 +2,6 @@ package com.ingrify.app
 
 import com.google.gson.annotations.SerializedName
 
-// This data class should match the structure of your login/signup API response
 data class LoginResponse(
     @SerializedName("message") // e.g., "Login successful", "User registered"
     val message: String,
