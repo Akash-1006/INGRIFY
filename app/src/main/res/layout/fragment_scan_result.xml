@@ -56,16 +56,15 @@
 
             <TextView
                 android:id="@+id/Raw_OCR"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:textSize="18sp"
+                android:layout_width="314dp"
+                android:layout_height="31dp"
                 android:fontFamily="@font/poppins_bold"
-                app:layout_constraintEnd_toStartOf="@id/iv_expand_toggle"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
                 android:text="Ingredients found from Image"
                 android:textColor="@color/password_toggle_blue"
-                />
+                android:textSize="18sp"
+                app:layout_constraintEnd_toStartOf="@id/iv_expand_toggle"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
 
             <ImageView
                 android:id="@+id/iv_expand_toggle"

@@ -6,9 +6,12 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
+import androidx.appcompat.widget.PopupMenu
 import androidx.lifecycle.lifecycleScope
+import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.card.MaterialCardView
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -25,7 +28,11 @@ class HomeFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         return inflater.inflate(R.layout.fragment_home, container, false)
+
+
+
     }
+
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -34,11 +41,75 @@ class HomeFragment : Fragment() {
 
         fetchUserProfile()
 
+        val hamburger = view.findViewById<ImageView>(R.id.Hamburger_menu)
+
+        hamburger.setOnClickListener {
+            val popup = PopupMenu(requireContext(), it)
+            popup.menuInflater.inflate(R.menu.hamburger_menu, popup.menu)
+            popup.setOnMenuItemClickListener { item ->
+                when (item.itemId) {
+                    R.id.ham_home -> {
+                        val allergenFragment = HomeFragment()
+                        (requireActivity().findViewById<BottomNavigationView>(R.id.bottom_navigation))
+                            .selectedItemId = R.id.navigation_profile
+                        parentFragmentManager.beginTransaction()
+                            .replace(R.id.fragment_container, allergenFragment)
+                            .addToBackStack(null)
+                            .commit()
+                        true
+                    }
+                    R.id.ham_scan -> { val scanFragment = ScanFragment()
+                        (requireActivity().findViewById<BottomNavigationView>(R.id.bottom_navigation))
+                            .selectedItemId = R.id.navigation_scan
+                        parentFragmentManager.beginTransaction()
+                            .replace(R.id.fragment_container, scanFragment)
+                            .addToBackStack(null)
+                            .commit()
+                        true }
+                    R.id.ham_search -> {  val searchFragment = SearchFragment()
+                        (requireActivity().findViewById<BottomNavigationView>(R.id.bottom_navigation))
+                            .selectedItemId = R.id.navigation_search
+                        parentFragmentManager.beginTransaction()
+                            .replace(R.id.fragment_container, searchFragment)
+                            .addToBackStack(null)
+                            .commit()
+                        true }
+                    R.id.ham_allergen -> { val allergenFragment = AllergenFragment()
+                        (requireActivity().findViewById<BottomNavigationView>(R.id.bottom_navigation))
+                            .selectedItemId = R.id.navigation_profile
+                        parentFragmentManager.beginTransaction()
+                            .replace(R.id.fragment_container, allergenFragment)
+                            .addToBackStack(null)
+                            .commit()
+                        true }
+                    R.id.ham_profile -> { val allergenFragment = ProfileFragment()
+                        (requireActivity().findViewById<BottomNavigationView>(R.id.bottom_navigation))
+                            .selectedItemId = R.id.navigation_profile
+                        parentFragmentManager.beginTransaction()
+                            .replace(R.id.fragment_container, allergenFragment)
+                            .addToBackStack(null)
+                            .commit()
+                        true }
+                    R.id.ham_settings -> { val allergenFragment = SettingsFragment()
+                        (requireActivity().findViewById<BottomNavigationView>(R.id.bottom_navigation))
+                            .selectedItemId = R.id.navigation_profile
+                        parentFragmentManager.beginTransaction()
+                            .replace(R.id.fragment_container, allergenFragment)
+                            .addToBackStack(null)
+                            .commit()
+                        true }
+                    else -> false
+                }
+            }
+            popup.show()
+        }
+
         // Setup click listeners for the MaterialCardView elements for fragment navigation
         view.findViewById<MaterialCardView>(R.id.card_scan).setOnClickListener {
             // Create an instance of the ScanFragment
             val scanFragment = ScanFragment()
-            // Begin a fragment transaction
+            (requireActivity().findViewById<BottomNavigationView>(R.id.bottom_navigation))
+                .selectedItemId = R.id.navigation_scan
             parentFragmentManager.beginTransaction()
                 .replace(R.id.fragment_container, scanFragment)
                 .addToBackStack(null)
@@ -47,6 +118,8 @@ class HomeFragment : Fragment() {
 
         view.findViewById<MaterialCardView>(R.id.card_search).setOnClickListener {
             val searchFragment = SearchFragment()
+            (requireActivity().findViewById<BottomNavigationView>(R.id.bottom_navigation))
+                .selectedItemId = R.id.navigation_search
             parentFragmentManager.beginTransaction()
                 .replace(R.id.fragment_container, searchFragment)
                 .addToBackStack(null)
@@ -55,6 +128,8 @@ class HomeFragment : Fragment() {
 
         view.findViewById<MaterialCardView>(R.id.card_allergen).setOnClickListener {
             val allergenFragment = AllergenFragment()
+            (requireActivity().findViewById<BottomNavigationView>(R.id.bottom_navigation))
+                .selectedItemId = R.id.navigation_profile
             parentFragmentManager.beginTransaction()
                 .replace(R.id.fragment_container, allergenFragment)
                 .addToBackStack(null)

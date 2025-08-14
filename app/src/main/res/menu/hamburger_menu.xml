@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/ham_home"
+        android:icon="@drawable/ic_home"
+        android:title="Home" />
+    <item
+        android:id="@+id/ham_scan"
+        android:icon="@drawable/ic_scan"
+        android:title="Scan" />
+    <item
+        android:id="@+id/ham_search"
+        android:icon="@drawable/ic_search"
+        android:title="Search" />
+    <item
+        android:id="@+id/ham_allergen"
+        android:icon="@drawable/ic_allergen_card"
+        android:title="Allergen Details" />
+    <item
+        android:id="@+id/ham_profile"
+        android:icon="@drawable/ic_profile"
+        android:title="Profile" />
+    <item
+        android:id="@+id/ham_settings"
+        android:icon="@drawable/ic_settings"
+        android:title="Settings" />
+</menu>

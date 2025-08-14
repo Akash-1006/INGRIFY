@@ -26,7 +26,7 @@ class SettingsFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         // Find views by their IDs
-        val backButton: ImageView = view.findViewById(R.id.iv_back_button_login)
+        val backButton: ImageView = view.findViewById(R.id.iv_back_button_settings)
         val settingsTitle: TextView = view.findViewById(R.id.Settings_title)
         val darkMode: MaterialCardView = view.findViewById(R.id.DarkMode)
         val notification: MaterialCardView = view.findViewById(R.id.Notifications)
@@ -36,9 +36,9 @@ class SettingsFragment : Fragment() {
 
         // Set OnClickListener for the back button
         backButton.setOnClickListener {
-            // Or if not using Navigation Component, you might use:
-            // activity?.onBackPressed()
-            Toast.makeText(context, "Back button clicked", Toast.LENGTH_SHORT).show()
+            backButton.setOnClickListener {
+                parentFragmentManager.popBackStack()
+            }
         }
 
         // Set OnClickListeners for MaterialCardViews
