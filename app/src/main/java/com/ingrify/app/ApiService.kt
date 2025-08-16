@@ -24,13 +24,20 @@ interface ApiService {
 
     @POST("single_ingredient")
     suspend fun getIngredientRaw(@Body body: RequestBody): Response<ResponseBody>
-    // Endpoint to get user profile, requires an Authorization header
-    @GET("user/profile") // Replace with your actual user profile endpoint path
+
+    @GET("user/profile")
     suspend fun getUserProfile(@Header("Authorization") token: String): Response<UserProfileResponse>
 
     @Multipart
     @POST("ocr")
     suspend fun uploadImageForOcr(@Part image: MultipartBody.Part): Response<OcrResponse>
+
+
+    @POST("add_allergens")
+    suspend fun addAllergens(
+        @Header("Authorization") token: String,
+        @Body request: AddAllergensRequest
+    ): Response<AddAllergensResponse>
 
   //  @GET("search_suggestions")
     //suspend fun getSearchSuggestions(@Header("Authorization") authToken: String, @Query("q") query: String): Response<SuggestionsResponse>
@@ -49,3 +56,12 @@ data class IngredientResponse(
     val isAllergen: Boolean
 )
 
+data class AddAllergensRequest(
+    val allergens: List<String>
+)
+
+// Response
+data class AddAllergensResponse(
+    val message: String,
+    val allergensadded: Int
+)

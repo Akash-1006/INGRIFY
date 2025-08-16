@@ -12,13 +12,18 @@ class SplashActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
         setContentView(R.layout.activity_splash)
 
+        UserSessionManager.init(this)
 
         Handler(Looper.getMainLooper()).postDelayed({
-            val mainIntent = Intent(this@SplashActivity, MainActivity::class.java)
-            startActivity(mainIntent)
+            if (UserSessionManager.isLoggedIn()) {
+                val intent = Intent(this@SplashActivity, HomeActivity::class.java)
+                startActivity(intent)
+            } else {
+                val intent = Intent(this@SplashActivity, MainActivity::class.java)
+                startActivity(intent)
+            }
             finish()
         }, SPLASH_DISPLAY_LENGTH)
     }

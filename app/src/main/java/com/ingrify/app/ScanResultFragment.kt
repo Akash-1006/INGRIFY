@@ -12,6 +12,7 @@ import android.widget.Toast
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.google.android.material.card.MaterialCardView
 import com.google.gson.Gson // This import is no longer needed but can be kept for now
 
 class ScanResultFragment : Fragment() {
@@ -52,7 +53,8 @@ class ScanResultFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        val ocr_card= view.findViewById<ConstraintLayout>(R.id.OCR_menu)
+        val ocrcard= view.findViewById<ConstraintLayout>(R.id.OCR_menu)
+        val menuocr= view.findViewById<MaterialCardView>(R.id.card_ocr_results)
         tvOcrResultContent = view.findViewById(R.id.OCR_result)
         backButton = view.findViewById(R.id.iv_back_button_scan_result)
         ingredientsRecyclerView = view.findViewById(R.id.rv_ingredients)
@@ -73,8 +75,8 @@ class ScanResultFragment : Fragment() {
             val ingredientList = ocrResponse.analysisResult
             Log.d("ScanResultFragment", "Number of ingredients received: ${ingredientList.size}")
 
-            ocr_card.visibility=View.VISIBLE
-            expandToggleIcon.setOnClickListener {
+            ocrcard.visibility=View.VISIBLE
+            menuocr.setOnClickListener {
                 isExpanded = !isExpanded
                 collapsibleDetailsLayout.visibility = if (isExpanded) View.VISIBLE else View.GONE
                 expandToggleIcon.setImageResource(

@@ -22,12 +22,10 @@ object UserSessionManager {
         return sharedPreferences.getString(KEY_USER_NAME, null)
     }
 
-    // NEW: Save authentication token
     fun saveAuthToken(token: String) {
         sharedPreferences.edit().putString(KEY_AUTH_TOKEN, token).apply()
     }
 
-    // NEW: Get authentication token
     fun getAuthToken(): String? {
         return sharedPreferences.getString(KEY_AUTH_TOKEN, null)
     }

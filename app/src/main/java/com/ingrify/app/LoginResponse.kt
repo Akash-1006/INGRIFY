@@ -7,6 +7,9 @@ data class LoginResponse(
     val message: String,
     @SerializedName("token") // This is crucial: the authentication token from your backend
     val token: String,
-    @SerializedName("user_name") // Assuming your backend returns the user's name upon login/signup
-    val userName: String? = null // It's good practice for the API to return the name immediately
+    @SerializedName("userName") // Assuming your backend returns the user's name upon login/signup
+    val userName: String? = null, // It's good practice for the API to return the name immediately
+    @SerializedName("userId")
+    val userId: Int
+
 )
