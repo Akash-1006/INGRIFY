@@ -104,27 +104,15 @@ class ProfileFragment : Fragment() {
     }
     private fun fetchUserProfile() {
         val token = UserSessionManager.getAuthToken()
+        val name= UserSessionManager.getName()
         if (token.isNullOrEmpty()) {
             usernameTextView.text = "User"
             return
         }
-
-        lifecycleScope.launch {
-            try {
-                val response = RetrofitClient.apiService.getUserProfile("Bearer $token")
-                if (response.isSuccessful && response.body() != null) {
-                    val user = response.body()!!
-                    usernameTextView.text = "${user.name}" ?: "User"
-                } else {
-                    Toast.makeText(
-                        requireContext(),
-                        "Failed to fetch profile: ${response.message()}",
-                        Toast.LENGTH_SHORT
-                    ).show()
-                }
-            } catch (e: Exception) {
-                Toast.makeText(requireContext(), "Error: ${e.message}", Toast.LENGTH_SHORT).show()
-            }
+        else{
+            usernameTextView.text = "${name}" ?: "User"
         }
+
+
     }
 }

@@ -22,22 +22,37 @@ interface ApiService {
     @POST("signup")
     suspend fun registerUser(@Body request: RegisterRequest): Response<LoginResponse> // Assuming signup also returns a token
 
-    @POST("single_ingredient")
+    @POST("single_ingredient_wo_jwt")
     suspend fun getIngredientRaw(@Body body: RequestBody): Response<ResponseBody>
+
+    @POST("single_ingredient")
+    suspend fun getSingleIngredient(
+        @Header("Authorization") token: String,
+        @Body body: RequestBody
+    ): Response<ResponseBody>
 
     @GET("user/profile")
     suspend fun getUserProfile(@Header("Authorization") token: String): Response<UserProfileResponse>
 
     @Multipart
     @POST("ocr")
-    suspend fun uploadImageForOcr(@Part image: MultipartBody.Part): Response<OcrResponse>
+    suspend fun uploadImageForOcr(@Header("Authorization") token: String,@Part image: MultipartBody.Part): Response<OcrResponse>
+
+    @Multipart
+    @POST("ocr_wo_jwt")
+    suspend fun uploadImageForOcrwojwt(@Part image: MultipartBody.Part): Response<OcrResponse>
 
 
-    @POST("add_allergens")
+    @POST("allergens")
     suspend fun addAllergens(
         @Header("Authorization") token: String,
         @Body request: AddAllergensRequest
     ): Response<AddAllergensResponse>
+
+    @GET("allergens")
+    suspend fun getAllergens(
+        @Header("Authorization") token: String,
+    ): Response<AllergenResponse>
 
   //  @GET("search_suggestions")
     //suspend fun getSearchSuggestions(@Header("Authorization") authToken: String, @Query("q") query: String): Response<SuggestionsResponse>
@@ -63,5 +78,5 @@ data class AddAllergensRequest(
 // Response
 data class AddAllergensResponse(
     val message: String,
-    val allergensadded: Int
+    val allergens_added: Int
 )

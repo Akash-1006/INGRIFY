@@ -66,11 +66,13 @@ class LoginActivity : AppCompatActivity() {
                         val loginResponse = response.body()
                         val token = loginResponse?.token
                         val returnedUserName = loginResponse?.userName
+                        val returnedName = loginResponse?.name
 
                         if (token != null) {
                             // ✅ Save session using UserSessionManager
                             UserSessionManager.saveAuthToken(token)
                             UserSessionManager.saveUserName(returnedUserName ?: username)
+                            UserSessionManager.saveName(returnedName ?: "User")
 
                             Toast.makeText(
                                 this@LoginActivity,

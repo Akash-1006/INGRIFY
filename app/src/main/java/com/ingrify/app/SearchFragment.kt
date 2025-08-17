@@ -69,7 +69,9 @@ class SearchFragment : Fragment() {
         // Set the click listener for the search icon (end icon) in the TextInputLayout
         tilSearchInput.setEndIconOnClickListener {
             handleSearchAction()
+            tilSearchInput.editText?.text?.clear()
         }
+
 
         // Set the editor action listener for the TextInputEditText (for keyboard "Search" or "Done" button)
         searchEditText.setOnEditorActionListener { _, actionId, event ->
@@ -78,6 +80,7 @@ class SearchFragment : Fragment() {
                 (event != null && event.keyCode == KeyEvent.KEYCODE_ENTER && event.action == KeyEvent.ACTION_DOWN)
             ) {
                 handleSearchAction()
+                tilSearchInput.editText?.text?.clear()
                 true // Consume the event
             } else {
                 false // Do not consume the event
@@ -105,6 +108,7 @@ class SearchFragment : Fragment() {
         val query = searchEditText.text.toString().trim()
         if (query.isNotEmpty()) {
             performSearch(query)
+
         } else {
             Toast.makeText(requireContext(), "Please enter a search query.", Toast.LENGTH_SHORT).show()
         }
@@ -118,90 +122,80 @@ class SearchFragment : Fragment() {
         // 1. Hide the soft keyboard if it's open
         hideKeyboard(searchEditText)
 
-        // 2. Explicitly disable the search input bar's interaction capabilities
-        //    without changing its visual 'enabled' state.
+        // 2. Disable the search input bar interaction
         searchEditText.isFocusable = false
         searchEditText.isFocusableInTouchMode = false
         searchEditText.isClickable = false
-        searchEditText.inputType = InputType.TYPE_NULL // Prevents keyboard from popping up
+        searchEditText.inputType = InputType.TYPE_NULL
 
-        // 3. Show the transparent full-screen progress bar.
-        //    This view's clickable=true and focusable=true will intercept all touches
-        //    on the rest of the screen.
+        // 3. Show progress bar
         progressBar.visibility = View.VISIBLE
-        Log.d("SearchFragment", "ProgressBar shown, UI interactions disabled for input bar and screen.")
+        Log.d("SearchFragment", "ProgressBar shown, UI interactions disabled.")
 
-
-        // Launch a coroutine for the network operation
         viewLifecycleOwner.lifecycleScope.launch {
             try {
-                // Construct the JSON request body
+                // Construct JSON body
                 val jsonString = """{"ingredient_name":"$query"}"""
                 val requestBody = jsonString.toRequestBody("application/json".toMediaType())
 
-                // Perform the network call on the IO dispatcher
+                val token = UserSessionManager.getAuthToken()
+
                 val response = withContext(Dispatchers.IO) {
-                    RetrofitClient.apiService.getIngredientRaw(requestBody)
+                    if (!token.isNullOrEmpty()) {
+                        Log.d("API_CALL", "Calling API with JWT token")
+                        RetrofitClient.apiService.getSingleIngredient("Bearer $token", requestBody)
+                    } else {
+                        Log.d("API_CALL", "Calling API without JWT token")
+                        RetrofitClient.apiService.getIngredientRaw(requestBody)
+                    }
                 }
 
                 if (response.isSuccessful) {
                     val rawResponseBody = response.body()?.string()
                     if (rawResponseBody != null) {
                         try {
-                            // Parse the initial response to check status and get raw analysis
                             val ingredientSearchResponse = gson.fromJson(rawResponseBody, IngredientSearchResponse::class.java)
 
                             if (ingredientSearchResponse.status == "success" && ingredientSearchResponse.analysisResultRaw.isNotEmpty()) {
-                                // Parse the nested analysisResultRaw string into an AnalysisResult object
                                 val analysisResult = gson.fromJson(ingredientSearchResponse.analysisResultRaw, AnalysisResult::class.java)
-
                                 Log.d("API_RESULT", "Parsed and Passing: Name=${analysisResult.name}, Use=${analysisResult.use}")
-                                // Load the SearchResultFragment with detailed results
                                 loadSearchResultFragment(ingredientSearchResponse.ingredient, analysisResult)
                             } else {
-                                // Case: API call successful, but no valid analysis data or status isn't "success"
                                 val message = "API call successful, but no analysis data found or status not 'success'."
                                 Log.d("API_RESULT", message)
-                                loadSearchResultFragment(message) // Pass message for display
+                                loadSearchResultFragment(message)
                             }
                         } catch (e: Exception) {
-                            // Handle JSON parsing errors
                             val message = "Failed to parse API response: ${e.localizedMessage ?: "Unknown parsing error."}"
-                            Log.e("API_ERROR", "JSON Parsing Exception: $message", e)
-                            loadSearchResultFragment(message) // Pass error message
+                            Log.e("API_ERROR", message, e)
+                            loadSearchResultFragment(message)
                         }
                     } else {
-                        // Case: Empty response body
                         val message = "Empty response body received for '$query'."
                         Log.d("API_RESULT", message)
-                        loadSearchResultFragment(message) // Pass message for display
+                        loadSearchResultFragment(message)
                     }
                 } else {
-                    // Handle unsuccessful HTTP responses (e.g., 404, 500)
                     val errorText = response.errorBody()?.string()
                     val message = "Error searching for '$query': ${response.code()} - ${errorText ?: "Unknown error"}"
-                    Log.e("API_ERROR", "API Error: $message")
-                    loadSearchResultFragment(message) // Pass error message
+                    Log.e("API_ERROR", message)
+                    loadSearchResultFragment(message)
                 }
-
             } catch (e: Exception) {
-                // Handle general exceptions (e.g., network issues, timeouts)
                 val errorMessage = "Exception searching for '$query': ${e.localizedMessage ?: "An unknown error occurred."}"
-                Log.e("API_ERROR", "Exception during API call: $errorMessage", e)
-                loadSearchResultFragment(errorMessage) // Pass error message
+                Log.e("API_ERROR", errorMessage, e)
+                loadSearchResultFragment(errorMessage)
             } finally {
-                // This block always executes, regardless of success or failure.
-                // 4. Hide the progress bar
                 progressBar.visibility = View.GONE
-
-                // 5. Re-enable the search input bar's interaction capabilities
                 searchEditText.isFocusable = true
                 searchEditText.isFocusableInTouchMode = true
                 searchEditText.isClickable = true
-                searchEditText.inputType = originalSearchInputType // Restore original input type
+                searchEditText.inputType = originalSearchInputType
             }
         }
     }
+
+
 
     /**
      * Loads the SearchResultFragment with an error message.

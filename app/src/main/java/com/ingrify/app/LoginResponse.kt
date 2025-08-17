@@ -10,6 +10,9 @@ data class LoginResponse(
     @SerializedName("userName") // Assuming your backend returns the user's name upon login/signup
     val userName: String? = null, // It's good practice for the API to return the name immediately
     @SerializedName("userId")
-    val userId: Int
+    val userId: Int,
+    @SerializedName("name")
+    val name: String,
+
 
 )

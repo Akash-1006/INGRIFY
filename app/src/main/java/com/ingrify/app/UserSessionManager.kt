@@ -6,7 +6,8 @@ object UserSessionManager {
 
     private const val PREF_NAME = "IngrifyUserSession"
     private const val KEY_USER_NAME = "userName" // For displaying immediately from login/signup response
-    private const val KEY_AUTH_TOKEN = "authToken" // NEW: To store the authentication token
+    private const val KEY_AUTH_TOKEN = "authToken"// NEW: To store the authentication token
+    private const val KEY_NAME = "name"
 
     private lateinit var sharedPreferences: SharedPreferences
 
@@ -16,6 +17,13 @@ object UserSessionManager {
 
     fun saveUserName(name: String) {
         sharedPreferences.edit().putString(KEY_USER_NAME, name).apply()
+    }
+
+    fun saveName(name: String) {
+        sharedPreferences.edit().putString(KEY_NAME, name).apply()
+    }
+    fun getName(): String? {
+        return sharedPreferences.getString(KEY_NAME, null)
     }
 
     fun getUserName(): String? {

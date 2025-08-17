@@ -147,43 +147,11 @@ class HomeFragment : Fragment() {
             }
             return
         }
-
-        val authHeader = "Bearer $authToken"
-
-        lifecycleScope.launch(Dispatchers.IO) {
-            try {
-                val response = RetrofitClient.apiService.getUserProfile(authHeader)
-
-                withContext(Dispatchers.Main) {
-                    if (response.isSuccessful && response.body() != null) {
-                        val userProfile = response.body()
-                        val userName = userProfile?.name
-                        if (!userName.isNullOrEmpty()) {
-                            welcomeMessageTextView.text = "Hello, ${userName}!!"
-                            UserSessionManager.saveUserName(userName)
-                        } else {
-                            welcomeMessageTextView.text = "Hello, User!!"
-                            context?.let {
-                                Toast.makeText(it, "User name not found in profile.", Toast.LENGTH_SHORT).show()
-                            }
-                        }
-                    } else {
-                        val errorBody = response.errorBody()?.string()
-                        welcomeMessageTextView.text = "Hello, User!!"
-                        context?.let {
-                            Toast.makeText(it, "Failed to fetch profile: ${errorBody ?: response.message()}", Toast.LENGTH_LONG).show()
-                        }
-                    }
-                }
-            } catch (e: Exception) {
-                withContext(Dispatchers.Main) {
-                    welcomeMessageTextView.text = "Hello, User!!"
-                    context?.let {
-                        Toast.makeText(it, "Network error fetching profile: ${e.message}", Toast.LENGTH_LONG).show()
-                    }
-                    e.printStackTrace()
-                }
-            }
+        else{
+            val User = UserSessionManager.getName()
+            welcomeMessageTextView.text ="Hello, ${User}!!"
+            return
         }
+
     }
 }
