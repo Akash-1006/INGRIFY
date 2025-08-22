@@ -54,6 +54,16 @@ interface ApiService {
         @Header("Authorization") token: String,
     ): Response<AllergenResponse>
 
+    @GET("history/search")
+    suspend fun getSearch(
+        @Header("Authorization") token: String,
+    ): Response<SearchResponse>
+
+    @GET("history/scan")
+    suspend fun getScan(
+        @Header("Authorization") token: String,
+    ): Response<ScanResponse>
+
   //  @GET("search_suggestions")
     //suspend fun getSearchSuggestions(@Header("Authorization") authToken: String, @Query("q") query: String): Response<SuggestionsResponse>
 
@@ -79,4 +89,26 @@ data class AddAllergensRequest(
 data class AddAllergensResponse(
     val message: String,
     val allergens_added: Int
+)
+
+data class ScanResponse(
+    val data: List<ScanItem>,
+    val status: String,
+    val type: String
+)
+
+data class ScanItem(
+    val id: Int,
+    val scan_name: String,
+    val raw_ocr_text: String,
+    val analysis: String,
+    val image_filename: String,
+    val created_at: String,
+    val overall_safety: OverallSafety?
+)
+
+
+data class OverallSafety(
+    val score: Int,
+    val safety_colour: String
 )

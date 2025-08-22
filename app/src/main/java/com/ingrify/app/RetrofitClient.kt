@@ -12,7 +12,7 @@ import com.ingrify.app.IngredientSearchResponse
 object RetrofitClient {
 
 
-    private const val BASE_URL = "https://ln466gtw-5000.inc1.devtunnels.ms/"
+    const val BASE_URL = "https://ln466gtw-5000.inc1.devtunnels.ms/"
 
     private val logging = HttpLoggingInterceptor().apply {
         level = HttpLoggingInterceptor.Level.BODY

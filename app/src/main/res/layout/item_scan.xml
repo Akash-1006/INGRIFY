@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/card_allergen"
+    android:layout_width="150dp"
+    android:layout_height="200dp"
+    android:layout_marginStart="8dp"
+    android:layout_marginEnd="8dp"
+    android:clickable="true"
+    android:focusable="true"
+    app:cardBackgroundColor="@color/white"
+    app:cardCornerRadius="16dp"
+    app:cardElevation="4dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="center"
+        android:orientation="vertical"
+        tools:ignore="UseCompoundDrawables">
+
+        <ImageView
+            android:id="@+id/imgScan"
+            android:layout_width="120dp"
+            android:layout_height="150dp"
+            android:scaleType="centerCrop"
+            android:background="@color/lightblue"
+            android:contentDescription="Scan Image" />
+
+        <TextView
+            android:id="@+id/Scan_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:fontFamily="@font/poppins_regular"
+            android:text="IN_20250611_1105"
+            android:textColor="@color/black"
+            android:textSize="12sp"
+            tools:ignore="TextContrastCheck" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/colorBar"
+            android:layout_width="match_parent"
+            android:layout_height="6dp"
+            android:layout_marginStart="18dp"
+            android:layout_marginEnd="18dp"
+            android:backgroundTint="@color/blue_icon_color"
+            app:cornerRadius="8dp"
+            android:clickable="false"
+            android:focusable="false"
+            android:insetTop="0dp"
+            android:insetBottom="0dp"
+            android:stateListAnimator="@null"
+            app:rippleColor="@android:color/transparent"
+            android:contentDescription="Safety colour"
+            app:iconGravity="textStart" />
+    </LinearLayout>
+</com.google.android.material.card.MaterialCardView>

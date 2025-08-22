@@ -24,12 +24,17 @@ import kotlinx.coroutines.withContext
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.RequestBody.Companion.toRequestBody
 import androidx.core.view.isVisible
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 
 class SearchFragment : Fragment() {
 
     private lateinit var searchEditText: TextInputEditText
     private lateinit var tilSearchInput: TextInputLayout
     private lateinit var progressBar: ProgressBar
+    private val searchList = mutableListOf<SearchItem>()
+    private lateinit var searchAdapter: SearchAdapter
+    private lateinit var recyclerView: RecyclerView
 
 
 
@@ -59,11 +64,17 @@ class SearchFragment : Fragment() {
         // Store the original input type for the searchEditText
         originalSearchInputType = searchEditText.inputType
 
-        // Ensure searchEditText is clickable by default if it wasn't already.
-        // This allows us to toggle its clickable state.
+
         searchEditText.isClickable = true
         searchEditText.isFocusable = true
         searchEditText.isFocusableInTouchMode = true
+
+        recyclerView = view.findViewById(R.id.SearchRecyclerView)
+
+        searchAdapter = SearchAdapter(searchList)
+        recyclerView.layoutManager = LinearLayoutManager(requireContext())
+        recyclerView.adapter = searchAdapter
+        fetchSearchHistory()
 
 
         // Set the click listener for the search icon (end icon) in the TextInputLayout
@@ -226,4 +237,35 @@ class SearchFragment : Fragment() {
         val imm = requireContext().getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
         imm.hideSoftInputFromWindow(view.windowToken, 0)
     }
+    private fun fetchSearchHistory() {
+        progressBar.visibility = View.VISIBLE
+
+        lifecycleScope.launch {
+            try {
+                val token = UserSessionManager.getAuthToken()
+
+                if (token.isNullOrEmpty())
+                {
+                    Toast.makeText(requireContext(), "Login to save recent history", Toast.LENGTH_LONG).show()
+                }
+                else{
+                val response = RetrofitClient.apiService.getSearch("Bearer $token")
+                if (response.isSuccessful) {
+                    val searchItems = response.body()?.data ?: emptyList()
+
+                    searchList.clear()
+                    searchList.addAll(searchItems)
+                    Log.d("SearchHistoryFragment", "Search history count: ${searchList.size}")
+                    searchAdapter.notifyDataSetChanged()
+                } else {
+                    Toast.makeText(requireContext(), "Failed to load search history", Toast.LENGTH_SHORT).show()
+                }}
+            } catch (e: Exception) {
+                Toast.makeText(requireContext(), "Error: ${e.message}", Toast.LENGTH_SHORT).show()
+            } finally {
+                progressBar.visibility = View.GONE
+            }
+        }
+    }
+
 }

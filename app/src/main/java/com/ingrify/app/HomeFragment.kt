@@ -2,6 +2,7 @@ package com.ingrify.app
 
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -10,26 +11,83 @@ import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.widget.PopupMenu
+import androidx.core.view.GravityCompat
+import androidx.drawerlayout.widget.DrawerLayout
 import androidx.lifecycle.lifecycleScope
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.card.MaterialCardView
+import com.google.android.material.navigation.NavigationView
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import com.ingrify.app.UserSessionManager
 import com.ingrify.app.RetrofitClient
+import okio.IOException
+import retrofit2.HttpException
 
 class HomeFragment : Fragment() {
 
     private lateinit var welcomeMessageTextView: TextView
+    private lateinit var recentscanstitle: TextView
+    private lateinit var recyclerView: RecyclerView
+    private lateinit var scanAdapter: ScanAdapter
+    private lateinit var drawerLayout: DrawerLayout
+    private lateinit var navigationView: NavigationView
+    private lateinit var hamburger: ImageView
+
+    private val scanItems = mutableListOf<ScanItem>()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        return inflater.inflate(R.layout.fragment_home, container, false)
+        val view = inflater.inflate(R.layout.fragment_home, container, false)
+        recyclerView = view.findViewById(R.id.recyclerScan)
+        recyclerView.layoutManager = LinearLayoutManager(requireContext())
+        recyclerView.layoutManager = LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)
 
 
+        // Initialize adapter
+        scanAdapter = ScanAdapter(scanItems)
+        recyclerView.adapter = scanAdapter
+        drawerLayout = view.findViewById(R.id.drawer_layout_home)
+        navigationView = view.findViewById(R.id.navigation_view_home)
+        hamburger = view.findViewById(R.id.Hamburger_menu)
+
+        // Open drawer when hamburger clicked
+        hamburger.setOnClickListener {
+            drawerLayout.openDrawer(GravityCompat.END)
+        }
+
+        // Handle nav item clicks
+        navigationView.setNavigationItemSelectedListener { item ->
+            when (item.itemId) {
+                R.id.nav_home -> {
+                    replaceFragment(HomeFragment())
+                }
+                R.id.nav_scan -> {
+                    replaceFragment(ScanFragment())
+                }
+                R.id.nav_search -> {
+                    replaceFragment(SearchFragment())
+                }
+                R.id.nav_allergen -> {
+                    replaceFragment(AllergenFragment())
+                }
+                R.id.nav_profile -> {
+                    replaceFragment(ProfileFragment())
+                }
+                R.id.nav_settings -> {
+                    replaceFragment(SettingsFragment())
+                }
+            }
+            drawerLayout.closeDrawer(GravityCompat.END)
+            true
+        }
+
+        return view
 
     }
 
@@ -39,70 +97,11 @@ class HomeFragment : Fragment() {
 
         welcomeMessageTextView = view.findViewById(R.id.tv_welcome_message)
 
+        recentscanstitle=view.findViewById(R.id.recent_scans_title)
+
         fetchUserProfile()
+        fetchScanHistory()
 
-        val hamburger = view.findViewById<ImageView>(R.id.Hamburger_menu)
-
-        hamburger.setOnClickListener {
-            val popup = PopupMenu(requireContext(), it)
-            popup.menuInflater.inflate(R.menu.hamburger_menu, popup.menu)
-            popup.setOnMenuItemClickListener { item ->
-                when (item.itemId) {
-                    R.id.ham_home -> {
-                        val allergenFragment = HomeFragment()
-                        (requireActivity().findViewById<BottomNavigationView>(R.id.bottom_navigation))
-                            .selectedItemId = R.id.navigation_profile
-                        parentFragmentManager.beginTransaction()
-                            .replace(R.id.fragment_container, allergenFragment)
-                            .addToBackStack(null)
-                            .commit()
-                        true
-                    }
-                    R.id.ham_scan -> { val scanFragment = ScanFragment()
-                        (requireActivity().findViewById<BottomNavigationView>(R.id.bottom_navigation))
-                            .selectedItemId = R.id.navigation_scan
-                        parentFragmentManager.beginTransaction()
-                            .replace(R.id.fragment_container, scanFragment)
-                            .addToBackStack(null)
-                            .commit()
-                        true }
-                    R.id.ham_search -> {  val searchFragment = SearchFragment()
-                        (requireActivity().findViewById<BottomNavigationView>(R.id.bottom_navigation))
-                            .selectedItemId = R.id.navigation_search
-                        parentFragmentManager.beginTransaction()
-                            .replace(R.id.fragment_container, searchFragment)
-                            .addToBackStack(null)
-                            .commit()
-                        true }
-                    R.id.ham_allergen -> { val allergenFragment = AllergenFragment()
-                        (requireActivity().findViewById<BottomNavigationView>(R.id.bottom_navigation))
-                            .selectedItemId = R.id.navigation_profile
-                        parentFragmentManager.beginTransaction()
-                            .replace(R.id.fragment_container, allergenFragment)
-                            .addToBackStack(null)
-                            .commit()
-                        true }
-                    R.id.ham_profile -> { val allergenFragment = ProfileFragment()
-                        (requireActivity().findViewById<BottomNavigationView>(R.id.bottom_navigation))
-                            .selectedItemId = R.id.navigation_profile
-                        parentFragmentManager.beginTransaction()
-                            .replace(R.id.fragment_container, allergenFragment)
-                            .addToBackStack(null)
-                            .commit()
-                        true }
-                    R.id.ham_settings -> { val allergenFragment = SettingsFragment()
-                        (requireActivity().findViewById<BottomNavigationView>(R.id.bottom_navigation))
-                            .selectedItemId = R.id.navigation_profile
-                        parentFragmentManager.beginTransaction()
-                            .replace(R.id.fragment_container, allergenFragment)
-                            .addToBackStack(null)
-                            .commit()
-                        true }
-                    else -> false
-                }
-            }
-            popup.show()
-        }
 
         // Setup click listeners for the MaterialCardView elements for fragment navigation
         view.findViewById<MaterialCardView>(R.id.card_scan).setOnClickListener {
@@ -141,17 +140,59 @@ class HomeFragment : Fragment() {
         val authToken = UserSessionManager.getAuthToken()
 
         if (authToken.isNullOrEmpty()) {
-            welcomeMessageTextView.text ="Hello, User!!"
+            welcomeMessageTextView.text = "Hello, User!!"
+            recentscanstitle.visibility = View.GONE
+            recyclerView.visibility = View.GONE
             context?.let {
-                Toast.makeText(it, "Please log in to personalize your experience.", Toast.LENGTH_SHORT).show()
+                Toast.makeText(
+                    it,
+                    "Please log in to personalize your experience.",
+                    Toast.LENGTH_SHORT
+                ).show()
             }
-            return
+        } else {
+            val user = UserSessionManager.getName()
+            welcomeMessageTextView.text = "Hello, $user!!"
+            recentscanstitle.visibility = View.VISIBLE
+            recyclerView.visibility = View.VISIBLE
         }
-        else{
-            val User = UserSessionManager.getName()
-            welcomeMessageTextView.text ="Hello, ${User}!!"
+    }
+    private fun fetchScanHistory() {
+        val token = UserSessionManager.getAuthToken()
+        if (token.isNullOrEmpty()) {
+            Toast.makeText(requireContext(), "Please log in to personalize your experience.", Toast.LENGTH_SHORT).show()
             return
         }
 
+        lifecycleScope.launch {
+            try {
+                val response = RetrofitClient.apiService.getScan("Bearer $token")
+                if (response.isSuccessful) {
+                    val scanResponse = response.body()
+                    val scans = scanResponse?.data ?: emptyList()
+                    Log.d("API_RESPONSE", "Raw response: $scanResponse")
+                    Log.d("API_RESPONSE", "Scans count: ${scans.size}")
+                    scans.forEachIndexed { index, scan ->
+                        Log.d("API_RESPONSE", "[$index] -> id=${scan.id}, name=${scan.scan_name}, image=${scan.image_filename}")
+                    }
+                    scanItems.apply {
+                        clear()
+                        addAll(scans)
+                    }
+                    scanAdapter.notifyDataSetChanged()
+                } else {
+                    Toast.makeText(requireContext(), "Please Check your internet connection and Try again", Toast.LENGTH_SHORT).show()
+                }
+            } catch (e: Exception) {
+                Toast.makeText(requireContext(), "Please Check your internet connection and Try again", Toast.LENGTH_SHORT).show()
+            }
+        }
     }
+    private fun replaceFragment(fragment: Fragment) {
+        parentFragmentManager.beginTransaction()
+            .replace(R.id.fragment_container, fragment)
+            .addToBackStack(null)
+            .commit()
+    }
+
 }

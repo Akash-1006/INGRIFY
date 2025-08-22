@@ -1,4 +1,35 @@
 package com.ingrify.app
 
-class SearchAdapter {
+
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
+import android.widget.TextView
+import androidx.recyclerview.widget.RecyclerView
+import com.google.gson.Gson
+
+class SearchAdapter(private val searchList: List<SearchItem>) :
+    RecyclerView.Adapter<SearchAdapter.SearchViewHolder>() {
+
+    private val gson = Gson()
+
+    class SearchViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+        val queryText: TextView = itemView.findViewById(R.id.tv_ingredient_name)
+    }
+
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): SearchViewHolder {
+        val view = LayoutInflater.from(parent.context)
+            .inflate(R.layout.item_recentsearch, parent, false)
+        return SearchViewHolder(view)
+    }
+
+    override fun onBindViewHolder(holder: SearchViewHolder, position: Int) {
+        val item = searchList[position]
+
+        // Set query
+        holder.queryText.text = item.query
+
+    }
+
+    override fun getItemCount(): Int = searchList.size
 }

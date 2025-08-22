@@ -10,6 +10,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
+import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
@@ -17,8 +18,12 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.lifecycleScope
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.button.MaterialButton
 import com.yalantis.ucrop.UCrop
+import kotlinx.coroutines.launch
 import java.io.File
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -30,6 +35,10 @@ class ScanFragment : Fragment() {
     private var startScanButton: MaterialButton? = null
     private var uploadButton: MaterialButton? = null
     private var imagePlaceholder: ImageView? = null
+    private lateinit var recentscanstitle: TextView
+    private lateinit var recyclerView: RecyclerView
+    private lateinit var scanAdapter: ScanAdapter
+    private val scanItems = mutableListOf<ScanItem>()
 
     private val FRAGMENT_CONTAINER_ID = R.id.fragment_container
 
@@ -88,7 +97,18 @@ class ScanFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        return inflater.inflate(R.layout.fragment_scan, container, false)
+        val view = inflater.inflate(R.layout.fragment_scan, container, false)
+        recyclerView = view.findViewById(R.id.recyclerScan)
+        recyclerView.layoutManager = LinearLayoutManager(requireContext())
+        recyclerView.layoutManager = LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)
+
+
+        // Initialize adapter
+        scanAdapter = ScanAdapter(scanItems)
+        recyclerView.adapter = scanAdapter
+
+
+        return view
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -97,6 +117,10 @@ class ScanFragment : Fragment() {
         startScanButton = view.findViewById(R.id.btn_start_scan) ?: return
         uploadButton = view.findViewById(R.id.btn_upload_image) ?: return
         imagePlaceholder = view.findViewById(R.id.imageview) ?: return
+        recentscanstitle=view.findViewById(R.id.recent_scans_title)
+
+        fetchUserProfile()
+        fetchScanHistory()
 
         resetUiForInitialScan()
 
@@ -190,5 +214,54 @@ class ScanFragment : Fragment() {
             .replace(FRAGMENT_CONTAINER_ID, imagePreviewFragment)
             .addToBackStack(null)
             .commit()
+    }
+
+    private fun fetchUserProfile() {
+        val authToken = UserSessionManager.getAuthToken()
+
+        if (authToken.isNullOrEmpty()) {
+            recyclerView.visibility = View.GONE
+            context?.let {
+                Toast.makeText(
+                    it,
+                    "Login to save Recent Scans.",
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
+        } else {
+            recentscanstitle.visibility = View.VISIBLE
+            recyclerView.visibility = View.VISIBLE
+        }
+    }
+    private fun fetchScanHistory() {
+        val token = UserSessionManager.getAuthToken()
+        if (token.isNullOrEmpty()) {
+            Toast.makeText(requireContext(), "Login to save Recent Scans.", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        lifecycleScope.launch {
+            try {
+                val response = RetrofitClient.apiService.getScan("Bearer $token")
+                if (response.isSuccessful) {
+                    val scanResponse = response.body()
+                    val scans = scanResponse?.data ?: emptyList()
+                    Log.d("API_RESPONSE", "Raw response: $scanResponse")
+                    Log.d("API_RESPONSE", "Scans count: ${scans.size}")
+                    scans.forEachIndexed { index, scan ->
+                        Log.d("API_RESPONSE", "[$index] -> id=${scan.id}, name=${scan.scan_name}, image=${scan.image_filename}")
+                    }
+                    scanItems.apply {
+                        clear()
+                        addAll(scans)
+                    }
+                    scanAdapter.notifyDataSetChanged()
+                } else {
+                    Toast.makeText(requireContext(), "Login to save Recent Scans.", Toast.LENGTH_SHORT).show()
+                }
+            } catch (e: Exception) {
+                Toast.makeText(requireContext(), "Login to save Recent Scans.", Toast.LENGTH_SHORT).show()
+            }
+        }
     }
 }
