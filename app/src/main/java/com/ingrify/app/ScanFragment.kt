@@ -257,10 +257,10 @@ class ScanFragment : Fragment() {
                     }
                     scanAdapter.notifyDataSetChanged()
                 } else {
-                    Toast.makeText(requireContext(), "Login to save Recent Scans.", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(requireContext(), "Please Check your Internet Connection and try again.", Toast.LENGTH_SHORT).show()
                 }
             } catch (e: Exception) {
-                Toast.makeText(requireContext(), "Login to save Recent Scans.", Toast.LENGTH_SHORT).show()
+                Toast.makeText(requireContext(), "Please Check your Internet Connection and try again.", Toast.LENGTH_SHORT).show()
             }
         }
     }

@@ -108,7 +108,3 @@ data class ScanItem(
 )
 
 
-data class OverallSafety(
-    val score: Int,
-    val safety_colour: String
-)

@@ -66,6 +66,8 @@ class SearchResultFragment : Fragment() {
         tvSideEffectsContent = view.findViewById(R.id.tv_side_effects_content)
         tvAllergenContent = view.findViewById(R.id.tv_allergen_content)
         backButton = view.findViewById(R.id.iv_back_button)
+        val indicator = view.findViewById<View>(R.id.indicator)
+        val hazardBar = view.findViewById<View>(R.id.hazardBar)
 
         backButton.setOnClickListener {
             parentFragmentManager.popBackStack() // Go back to the previous fragment
@@ -96,6 +98,15 @@ class SearchResultFragment : Fragment() {
                     tvMadeFromContent.text = analysisResult.madeFrom
                     tvSideEffectsContent.text = analysisResult.sideEffects
                     tvAllergenContent.text = if (analysisResult.allergen) "Yes." else "No."
+                    val safetyScore = analysisResult.score ?: -1
+
+                    val hazardScore = getHazardScoreFromAnalysis(safetyScore)
+
+                    hazardBar.post {
+                        val barWidth = hazardBar.width - indicator.width
+                        val translationX = hazardScore * barWidth
+                        indicator.translationX = translationX
+                    }
 
                 } catch (e: Exception) {
                     // Handle parsing error if the JSON somehow became corrupt during transfer
@@ -114,8 +125,14 @@ class SearchResultFragment : Fragment() {
                 view.findViewById<View>(R.id.card_allergen).visibility = View.GONE
             }
         }
+
     }
 
+    fun getHazardScoreFromAnalysis(safetyScore: Int): Float {
+        // Clamp between 0 and 100 just in case
+        val safe = safetyScore.coerceIn(0, 100)
+        return safe / 100f  // normalize to 0..1
+    }
     // Extension function to capitalize words for display purposes (optional)
     fun String.capitalizeWords(): String = split(" ").joinToString(" ") { it.capitalize() }
 }

@@ -190,6 +190,7 @@ class AllergenFragment : Fragment() {
                     allergenList.addAll(allergens)
                     Log.d("AllergenFragment", "Allergen count: ${allergenList.size}")
                     allergenAdapter.notifyDataSetChanged()
+                    UserSessionManager.saveAllergens(allergenStrings)
                 } else {
                     Toast.makeText(requireContext(), "Failed to load allergens", Toast.LENGTH_SHORT).show()
                 }

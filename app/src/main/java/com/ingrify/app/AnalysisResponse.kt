@@ -14,7 +14,8 @@ data class AnalysisResult(
     @SerializedName("use") val use: String,
     @SerializedName("Made from") val madeFrom: String, // Use @SerializedName for keys with spaces
     @SerializedName("side_effects") val sideEffects: String,
-    @SerializedName("allergen") val allergen: Boolean
+    @SerializedName("allergen") val allergen: Boolean,
+    @SerializedName("score") val score: Int
 )
 
 /**
@@ -40,5 +41,14 @@ data class OcrResponse(
     @SerializedName("image_filename")
     val imageFilename: String,
     @SerializedName("search_reference")
-    val searchReference: String
+    val searchReference: String,
+    @SerializedName("overall_safety")
+    val overallSafety: OverallSafety?
+) : Parcelable
+
+@Parcelize
+data class OverallSafety(
+    val score: Int,
+    @SerializedName("safety_colour")
+    val safetyColour: String
 ) : Parcelable

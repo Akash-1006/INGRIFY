@@ -15,6 +15,7 @@ data class SearchItem(
     val raw_ocr_text: String?,
     val created_at: String,
     val analysis: String
+
 )
 
 data class Analysis(
@@ -22,5 +23,6 @@ data class Analysis(
     val use: String,
     @SerializedName("Made from") val madeFrom: String,
     val side_effects: String,
-    val allergen: Boolean
+    val allergen: Boolean,
+    val score: Int,
 )

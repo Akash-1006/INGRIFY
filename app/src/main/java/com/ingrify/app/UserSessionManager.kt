@@ -46,4 +46,11 @@ object UserSessionManager {
     fun clearSession() {
         sharedPreferences.edit().clear().apply()
     }
+    private var allergens: List<String> = emptyList()
+
+    fun saveAllergens(list: List<String>) {
+        allergens = list.map { it.lowercase() }
+    }
+
+    fun getAllergens(): List<String> = allergens
 }
