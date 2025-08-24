@@ -159,8 +159,7 @@ class ScanResultFragment : Fragment() {
         }
     }
     fun getHazardScoreFromAnalysis(safetyScore: Int): Float {
-        // Clamp between 0 and 100 just in case
         val safe = safetyScore.coerceIn(0, 100)
-        return safe / 100f  // normalize to 0..1
+        return safe / 100f
     }
 }

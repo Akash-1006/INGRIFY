@@ -64,20 +64,13 @@ class SignUpActivity : AppCompatActivity() {
 
                     withContext(Dispatchers.Main) {
                         if (response.isSuccessful && response.body() != null) {
-                            val loginResponse = response.body()
-                            val token = loginResponse?.token
-                            val returnedUserName = loginResponse?.userName
+                            val registerResponse = response.body()
+                            Toast.makeText(this@SignUpActivity, registerResponse?.message ?: "Registration successful!", Toast.LENGTH_SHORT).show()
+                            val intent = Intent(this@SignUpActivity, LoginActivity::class.java)
+                            intent.putExtra("username", username) // optional: pre-fill username
+                            startActivity(intent)
+                            finish()
 
-                            if (token != null) {
-                                UserSessionManager.saveAuthToken(token)
-                                UserSessionManager.saveUserName(returnedUserName ?: name)
-                                Toast.makeText(this@SignUpActivity, loginResponse.message, Toast.LENGTH_SHORT).show()
-                                val intent = Intent(this@SignUpActivity, HomeActivity::class.java)
-                                startActivity(intent)
-                                finish()
-                            } else {
-                                Toast.makeText(this@SignUpActivity, "Registration successful, but no token received.", Toast.LENGTH_LONG).show()
-                            }
                         } else {
                             val errorBody = response.errorBody()?.string()
                             Toast.makeText(this@SignUpActivity, "Registration failed: ${errorBody ?: response.message()}", Toast.LENGTH_LONG).show()

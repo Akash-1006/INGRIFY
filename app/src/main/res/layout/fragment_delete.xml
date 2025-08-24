@@ -65,6 +65,7 @@
 
         <com.google.android.material.button.MaterialButton
             android:layout_width="wrap_content"
+            android:id="@+id/DeleteButton"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:backgroundTint="#CC2727"

@@ -293,19 +293,26 @@
                             <LinearLayout
                                 android:layout_width="match_parent"
                                 android:layout_height="match_parent"
-                                android:gravity="center"
+                                android:gravity="start|center_vertical"
                                 android:orientation="vertical"
-                                tools:ignore="UseCompoundDrawables">
+                                android:padding="8dp">
 
                                 <TextView
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
-                                    android:layout_marginTop="8dp"
+                                    android:fontFamily="@font/poppins_medium"
+                                    android:text="Gelatin"
+                                    android:textColor="@color/black"
+                                    android:textSize="14sp" />
+
+                                <TextView
+                                    android:layout_width="132dp"
+                                    android:layout_height="wrap_content"
+                                    android:layout_marginTop="4dp"
                                     android:fontFamily="@font/poppins_regular"
-                                    android:text="IN 05052025"
-                                    android:textColor="@color/password_toggle_blue"
-                                    android:textSize="12sp"
-                                    tools:ignore="TextContrastCheck" />
+                                    android:text="Used as thickener; may be veg or non-veg."
+                                    android:textColor="@color/black"
+                                    android:textSize="12sp" />
                             </LinearLayout>
                         </com.google.android.material.card.MaterialCardView>
 
@@ -324,19 +331,26 @@
                             <LinearLayout
                                 android:layout_width="match_parent"
                                 android:layout_height="match_parent"
-                                android:gravity="center"
                                 android:orientation="vertical"
-                                tools:ignore="UseCompoundDrawables">
+                                android:padding="8dp"
+                                android:gravity="start|center_vertical">
 
                                 <TextView
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
-                                    android:layout_marginTop="8dp"
-                                    android:fontFamily="@font/poppins_regular"
-                                    android:text="IN 05052025"
-                                    android:textColor="@color/password_toggle_blue"
+                                    android:text="Parabens"
+                                    android:textSize="14sp"
+                                    android:fontFamily="@font/poppins_medium"
+                                    android:textColor="@color/black" />
+
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="Used as preservatives; may cause skin irritation."
                                     android:textSize="12sp"
-                                    tools:ignore="TextContrastCheck" />
+                                    android:fontFamily="@font/poppins_regular"
+                                    android:textColor="@color/black"
+                                    android:layout_marginTop="4dp" />
                             </LinearLayout>
                         </com.google.android.material.card.MaterialCardView>
 
@@ -355,19 +369,26 @@
                             <LinearLayout
                                 android:layout_width="match_parent"
                                 android:layout_height="match_parent"
-                                android:gravity="center"
                                 android:orientation="vertical"
-                                tools:ignore="UseCompoundDrawables">
+                                android:padding="8dp"
+                                android:gravity="start|center_vertical">
 
                                 <TextView
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
-                                    android:layout_marginTop="8dp"
-                                    android:fontFamily="@font/poppins_regular"
-                                    android:text="IN 05052025"
-                                    android:textColor="@color/password_toggle_blue"
+                                    android:text="Gluten"
+                                    android:textSize="14sp"
+                                    android:fontFamily="@font/poppins_medium"
+                                    android:textColor="@color/black" />
+
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="Protein in wheat; can trigger sensitivity or celiac disease."
                                     android:textSize="12sp"
-                                    tools:ignore="TextContrastCheck" />
+                                    android:fontFamily="@font/poppins_regular"
+                                    android:textColor="@color/black"
+                                    android:layout_marginTop="4dp" />
                             </LinearLayout>
                         </com.google.android.material.card.MaterialCardView>
 
@@ -386,19 +407,26 @@
                             <LinearLayout
                                 android:layout_width="match_parent"
                                 android:layout_height="match_parent"
-                                android:gravity="center"
                                 android:orientation="vertical"
-                                tools:ignore="UseCompoundDrawables">
+                                android:padding="8dp"
+                                android:gravity="start|center_vertical">
 
                                 <TextView
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
-                                    android:layout_marginTop="8dp"
-                                    android:fontFamily="@font/poppins_regular"
-                                    android:text="IN 05052025"
-                                    android:textColor="@color/password_toggle_blue"
+                                    android:text="Phthalates"
+                                    android:textSize="14sp"
+                                    android:fontFamily="@font/poppins_medium"
+                                    android:textColor="@color/black" />
+
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="Used in fragrances; concerns about hormone disruption."
                                     android:textSize="12sp"
-                                    tools:ignore="TextContrastCheck" />
+                                    android:fontFamily="@font/poppins_regular"
+                                    android:textColor="@color/black"
+                                    android:layout_marginTop="4dp" />
                             </LinearLayout>
                         </com.google.android.material.card.MaterialCardView>
 
@@ -417,19 +445,26 @@
                             <LinearLayout
                                 android:layout_width="match_parent"
                                 android:layout_height="match_parent"
-                                android:gravity="center"
                                 android:orientation="vertical"
-                                tools:ignore="UseCompoundDrawables">
+                                android:padding="8dp"
+                                android:gravity="start|center_vertical">
 
                                 <TextView
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
-                                    android:layout_marginTop="8dp"
-                                    android:fontFamily="@font/poppins_regular"
-                                    android:text="IN 05052025"
-                                    android:textColor="@color/password_toggle_blue"
+                                    android:text="Triclosan"
+                                    android:textSize="14sp"
+                                    android:fontFamily="@font/poppins_medium"
+                                    android:textColor="@color/black" />
+
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="Antibacterial agent; now restricted in many regions."
                                     android:textSize="12sp"
-                                    tools:ignore="TextContrastCheck" />
+                                    android:fontFamily="@font/poppins_regular"
+                                    android:textColor="@color/black"
+                                    android:layout_marginTop="4dp" />
                             </LinearLayout>
                         </com.google.android.material.card.MaterialCardView>
 

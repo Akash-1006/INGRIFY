@@ -1,15 +1,18 @@
 package com.ingrify.app
 
+import okhttp3.Call
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
 import okhttp3.ResponseBody
 import retrofit2.Response
 import retrofit2.http.Body
+import retrofit2.http.DELETE
 import retrofit2.http.GET
 import retrofit2.http.Header
 import retrofit2.http.Headers
 import retrofit2.http.Multipart
 import retrofit2.http.POST
+import retrofit2.http.PUT
 import retrofit2.http.Part
 
 interface ApiService {
@@ -64,7 +67,19 @@ interface ApiService {
         @Header("Authorization") token: String,
     ): Response<ScanResponse>
 
-  //  @GET("search_suggestions")
+    @DELETE("/user/account")
+    suspend fun deleteAccount(
+        @Header("Authorization") token: String
+    ): retrofit2.Response<Void>
+
+    @PUT("/user/change_password")
+    suspend fun changePassword(
+        @Header("Authorization") token: String,
+        @Body request: ChangePasswordRequest
+    ): Response<ApiResponse>
+
+
+    //  @GET("search_suggestions")
     //suspend fun getSearchSuggestions(@Header("Authorization") authToken: String, @Query("q") query: String): Response<SuggestionsResponse>
 
    // @GET("allergen_suggestions")
@@ -106,5 +121,14 @@ data class ScanItem(
     val created_at: String,
     val overall_safety: OverallSafety?
 )
+data class ChangePasswordRequest(
+    val current_password: String,
+    val new_password: String
+)
+
+data class ApiResponse(
+    val message: String
+)
+
 
 
