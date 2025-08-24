@@ -61,6 +61,69 @@
         android:textSize="22sp"
         tools:text="Methylisothiazolinone (MIT)" />
     </LinearLayout>
+    <LinearLayout
+        android:id="@+id/score_colour"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:gravity="center_horizontal"
+        android:layout_marginStart="24dp"
+        android:layout_marginEnd="24dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/QueryName"
+        android:padding="16dp">
+
+        <!-- Gradient bar + marker -->
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="20dp">
+
+            <!-- Gradient Bar -->
+            <View
+                android:id="@+id/hazardBar"
+                android:layout_width="match_parent"
+                android:layout_height="8dp"
+                android:background="@drawable/hazard_bar"
+                android:layout_gravity="center_vertical"/>
+
+            <!-- Blue Indicator -->
+            <View
+                android:id="@+id/indicator"
+                android:layout_width="16dp"
+                android:layout_height="16dp"
+                android:layout_gravity="center_vertical"
+                android:background="@drawable/blue_circle"/>
+        </FrameLayout>
+
+        <!-- Hazard Label -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:weightSum="2">
+
+            <TextView
+                android:id="@+id/lowHazardLabel"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:gravity="start"
+                android:text="Low Hazard"
+                android:textColor="#00C853"
+                android:textSize="14sp"/>
+
+            <TextView
+                android:id="@+id/highHazardLabel"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:gravity="end"
+                android:text="Potential Hazard"
+                android:textColor="#D32F2F"
+                android:textSize="14sp"/>
+        </LinearLayout>
+    </LinearLayout>
     <ScrollView
         android:layout_width="0dp"
         android:layout_height="0dp"
@@ -68,7 +131,7 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/QueryName">
+        app:layout_constraintTop_toBottomOf="@+id/score_colour">
 
         <LinearLayout
             android:layout_width="match_parent"

@@ -7,7 +7,7 @@
     tools:context=".AccountFragment"
     android:id="@+id/main">
     <ImageView
-        android:id="@+id/iv_back_button_login"
+        android:id="@+id/iv_back_button_account"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
@@ -28,7 +28,7 @@
         android:text="My Account"
         android:textColor="#000000"
         android:textSize="24sp"
-        app:layout_constraintStart_toEndOf="@+id/iv_back_button_login"
+        app:layout_constraintStart_toEndOf="@+id/iv_back_button_account"
         app:layout_constraintTop_toTopOf="parent" />
 
     <com.google.android.material.card.MaterialCardView
@@ -76,7 +76,17 @@
         </LinearLayout>
     </com.google.android.material.card.MaterialCardView>
 
-
+    <TextView
+        android:id="@+id/Name_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="32dp"
+        android:fontFamily="@font/poppins_regular"
+        android:text="Name"
+        android:textColor="#000000"
+        android:textSize="14sp"
+        app:layout_constraintTop_toBottomOf="@+id/profile_icon"
+        app:layout_constraintStart_toStartOf="@id/name_1"/>
 
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/name_1"
@@ -84,7 +94,7 @@
         android:layout_width="350dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="30dp"
-        android:layout_marginTop="34dp"
+        android:layout_marginTop="2dp"
         android:layout_marginEnd="30dp"
         app:hintEnabled="false"
         app:boxBackgroundColor="@color/input_box_background_color_dark_mode"
@@ -95,7 +105,8 @@
         app:boxStrokeColor="@color/input_box_stroke_color_dark_mode"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/profile_icon">
+        app:layout_constraintTop_toBottomOf="@+id/Name_title">
+
 
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/et_name"
@@ -111,7 +122,17 @@
 
 
 
-
+    <TextView
+        android:id="@+id/Username_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="18dp"
+        android:fontFamily="@font/poppins_regular"
+        android:text="Username"
+        android:textColor="#000000"
+        android:textSize="14sp"
+        app:layout_constraintTop_toBottomOf="@+id/name_1"
+        app:layout_constraintStart_toStartOf="@id/username"/>
 
 
     <com.google.android.material.textfield.TextInputLayout
@@ -120,7 +141,7 @@
         android:layout_width="350dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="32dp"
-        android:layout_marginTop="18dp"
+        android:layout_marginTop="2dp"
         android:layout_marginEnd="32dp"
         app:hintEnabled="false"
         app:boxBackgroundColor="@color/input_box_background_color_dark_mode"
@@ -131,7 +152,7 @@
         app:boxStrokeColor="@color/input_box_stroke_color_dark_mode"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/name_1">
+        app:layout_constraintTop_toBottomOf="@+id/Username_title">
 
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/username_hint"
@@ -147,7 +168,17 @@
 
 
 
-
+    <TextView
+        android:id="@+id/Age_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="18dp"
+        android:fontFamily="@font/poppins_regular"
+        android:text="Age"
+        android:textColor="#000000"
+        android:textSize="14sp"
+        app:layout_constraintTop_toBottomOf="@+id/username"
+        app:layout_constraintStart_toStartOf="@id/age"/>
 
 
         <com.google.android.material.textfield.TextInputLayout
@@ -156,7 +187,7 @@
             android:layout_width="350dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="32dp"
-            android:layout_marginTop="18dp"
+            android:layout_marginTop="2dp"
             android:layout_marginEnd="32dp"
             app:hintEnabled="false"
             app:boxBackgroundColor="@color/input_box_background_color_dark_mode"
@@ -167,7 +198,7 @@
             app:boxStrokeColor="@color/input_box_stroke_color_dark_mode"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/username">
+            app:layout_constraintTop_toBottomOf="@+id/Age_title">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/et_age"

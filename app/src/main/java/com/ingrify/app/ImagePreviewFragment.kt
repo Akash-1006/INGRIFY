@@ -125,7 +125,6 @@ class ImagePreviewFragment : Fragment() {
                 }
 
                 if (tempFileForUpload == null) {
-                    // All UI updates must be on the main thread
                     withContext(Dispatchers.Main) {
                         Toast.makeText(context, "Failed to prepare image for upload.", Toast.LENGTH_SHORT).show()
                         loadScanResultFragment(null)
@@ -136,17 +135,23 @@ class ImagePreviewFragment : Fragment() {
                 val requestFile = tempFileForUpload.asRequestBody("image/*".toMediaTypeOrNull())
                 val imagePart = MultipartBody.Part.createFormData("image", tempFileForUpload.name, requestFile)
 
+                val token = UserSessionManager.getAuthToken()
+
                 val response = withContext(Dispatchers.IO) {
-                    RetrofitClient.apiService.uploadImageForOcr(imagePart)
+                    if (token.isNullOrEmpty()) {
+                        Log.d("ImagePreviewFragment", "No JWT token found. Using uploadImageForOcrwojwt")
+                        RetrofitClient.apiService.uploadImageForOcrwojwt(imagePart)
+                    } else {
+                        Log.d("ImagePreviewFragment", "JWT token found. Using uploadImageForOcr with Authorization header")
+                        RetrofitClient.apiService.uploadImageForOcr("Bearer $token", imagePart)
+                    }
                 }
 
-                // All subsequent UI updates must be on the main thread
                 withContext(Dispatchers.Main) {
                     if (response.isSuccessful) {
                         val ocrResponse = response.body()
                         if (ocrResponse != null) {
                             Log.d("ImagePreviewFragment", "OCR Result: ${ocrResponse.ocrResult}")
-                            // CORRECTED: Pass the entire ocrResponse object
                             loadScanResultFragment(ocrResponse)
                         } else {
                             val msg = "OCR response successful but no body received."
@@ -161,14 +166,12 @@ class ImagePreviewFragment : Fragment() {
                     }
                 }
             } catch (e: Exception) {
-                // All UI updates must be on the main thread
                 withContext(Dispatchers.Main) {
                     val msg = "An unexpected error occurred during scan: ${e.localizedMessage ?: "Unknown error"}"
                     Log.e("ImagePreviewFragment", msg, e)
                     loadScanResultFragment(null, msg)
                 }
             } finally {
-                // All UI updates must be on the main thread
                 withContext(Dispatchers.Main) {
                     tempFileForUpload?.let { file ->
                         if (file.exists()) {
@@ -181,6 +184,7 @@ class ImagePreviewFragment : Fragment() {
             }
         }
     }
+
 
     private fun createTempFileFromUri(context: Context, uri: Uri): File? {
         return try {

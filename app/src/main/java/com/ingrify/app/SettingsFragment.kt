@@ -1,5 +1,6 @@
 package com.ingrify.app
 
+import android.content.Context.MODE_PRIVATE
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
@@ -9,8 +10,9 @@ import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
 import com.google.android.material.card.MaterialCardView
-import androidx.navigation.fragment.findNavController // Import for navigation (if you're using Navigation Component)
-import androidx.appcompat.app.AppCompatDelegate // For dark mode toggle
+import androidx.appcompat.app.AppCompatDelegate
+import androidx.appcompat.widget.SwitchCompat
+import android.content.SharedPreferences
 
 class SettingsFragment : Fragment() {
 
@@ -26,25 +28,57 @@ class SettingsFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         // Find views by their IDs
-        val backButton: ImageView = view.findViewById(R.id.iv_back_button_login)
-        val settingsTitle: TextView = view.findViewById(R.id.Settings_title)
-        val darkMode: MaterialCardView = view.findViewById(R.id.DarkMode)
-        val notification: MaterialCardView = view.findViewById(R.id.Notifications)
+        val backButton: ImageView = view.findViewById(R.id.iv_back_button_settings)
+        val darkMode = view.findViewById<SwitchCompat>(R.id.darkModeSwitch)
+        val notification = view.findViewById<SwitchCompat>(R.id.NotificationSwitch)
         val permission: MaterialCardView = view.findViewById(R.id.Permission)
         val help: MaterialCardView = view.findViewById(R.id.Help)
         val about: MaterialCardView = view.findViewById(R.id.About)
+        val sharedPreferences = requireContext().getSharedPreferences("settings", MODE_PRIVATE)
 
-        // Set OnClickListener for the back button
         backButton.setOnClickListener {
-            // Or if not using Navigation Component, you might use:
-            // activity?.onBackPressed()
-            Toast.makeText(context, "Back button clicked", Toast.LENGTH_SHORT).show()
+            backButton.setOnClickListener {
+                parentFragmentManager.popBackStack()
+            }
         }
+
+        val isDarkMode = sharedPreferences.getBoolean("dark_mode", false)
+        val isNotiON = sharedPreferences.getBoolean("Notifications", false)
+        darkMode.isChecked = isDarkMode
+
+        darkMode.setOnCheckedChangeListener { _, isChecked ->
+            sharedPreferences.edit()
+                .putBoolean("dark_mode", isChecked)
+                .apply()
+
+            // Show toast only when enabling dark mode
+            if (isChecked) {
+                Toast.makeText(requireContext(), "Dark mode is in beta", Toast.LENGTH_SHORT).show()
+            }
+            else {
+                Toast.makeText(requireContext(), "Thanks for Understanding :)", Toast.LENGTH_SHORT).show()
+            }
+        }
+
+        notification.isChecked = isNotiON
+
+        notification.setOnCheckedChangeListener { _, isChecked ->
+            sharedPreferences.edit()
+                .putBoolean("Notifications", isChecked)
+                .apply()
+
+            if (isChecked) {
+                Toast.makeText(requireContext(), "Notifications enabled", Toast.LENGTH_SHORT).show()
+            } else {
+                Toast.makeText(requireContext(), "Notifications disabled", Toast.LENGTH_SHORT).show()
+            }
+        }
+
 
         // Set OnClickListeners for MaterialCardViews
 
 
-       permission.setOnClickListener {
+        permission.setOnClickListener {
             val permissionFragment = PermissionsFragment()
             parentFragmentManager.beginTransaction()
                 .replace(R.id.fragment_container, permissionFragment)
@@ -61,13 +95,12 @@ class SettingsFragment : Fragment() {
         }
 
         about.setOnClickListener {
-           val aboutFragment = AboutFragment()
+            val aboutFragment = AboutFragment()
 
             parentFragmentManager.beginTransaction()
                 .replace(R.id.fragment_container, aboutFragment)
                 .addToBackStack(null)
                 .commit()
         }
-
     }
-}
+   }

@@ -9,10 +9,14 @@ import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
 import com.google.android.material.card.MaterialCardView
-import androidx.navigation.fragment.findNavController // Import for navigation (if you're using Navigation Component)
+import androidx.navigation.fragment.findNavController
 import androidx.appcompat.app.AppCompatDelegate // For dark mode toggle
+import androidx.lifecycle.lifecycleScope
+import com.ingrify.app.UserSessionManager
+import kotlinx.coroutines.launch
 
 class ProfileFragment : Fragment() {
+    private lateinit var usernameTextView: TextView
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -27,14 +31,14 @@ class ProfileFragment : Fragment() {
 
         // Find views by their IDs
         val backButton: ImageView = view.findViewById(R.id.iv_back_button_login)
-        val profileTitle: TextView = view.findViewById(R.id.Profile_title)
+        usernameTextView = view.findViewById(R.id.username)
         val profileIconCard: MaterialCardView = view.findViewById(R.id.profile_icon)
         val settingsCard: MaterialCardView = view.findViewById(R.id.settings)
         val allergenDetailsCard: MaterialCardView = view.findViewById(R.id.Allergen_details)
         val changePasswordCard: MaterialCardView = view.findViewById(R.id.Change_password)
         val deleteAccountCard: MaterialCardView = view.findViewById(R.id.Delete_account)
         val logOutCard: MaterialCardView = view.findViewById(R.id.Log_out)
-
+        fetchUserProfile()
         // Set OnClickListener for the back button
         backButton.setOnClickListener {
             parentFragmentManager.popBackStack()
@@ -87,9 +91,28 @@ class ProfileFragment : Fragment() {
         }
 
         logOutCard.setOnClickListener {
-            Toast.makeText(context, "Log Out clicked!", Toast.LENGTH_SHORT).show()
-            // Example: Perform logout operation (clear user session, navigate to login)
-            // performLogout()
+            Toast.makeText(context, "Logging out...", Toast.LENGTH_SHORT).show()
+
+            UserSessionManager.clearSession()
+
+            val intent = android.content.Intent(requireContext(), MainActivity::class.java)
+            intent.flags = android.content.Intent.FLAG_ACTIVITY_NEW_TASK or android.content.Intent.FLAG_ACTIVITY_CLEAR_TASK
+            startActivity(intent)
+            requireActivity().finish()
         }
+
+    }
+    private fun fetchUserProfile() {
+        val token = UserSessionManager.getAuthToken()
+        val name= UserSessionManager.getName()
+        if (token.isNullOrEmpty()) {
+            usernameTextView.text = "User"
+            return
+        }
+        else{
+            usernameTextView.text = "${name}" ?: "User"
+        }
+
+
     }
 }

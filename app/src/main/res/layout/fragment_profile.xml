@@ -62,11 +62,12 @@
                 android:src="@drawable/ic_profile"
                 android:layout_marginStart="10dp"/>
             <TextView
+            android:id="@+id/username"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
             android:fontFamily="@font/poppins_bold"
-            android:text="User"
+            tools:text="User"
             android:textColor="@color/password_toggle_blue"
             android:textSize="22sp"/>
         </LinearLayout>

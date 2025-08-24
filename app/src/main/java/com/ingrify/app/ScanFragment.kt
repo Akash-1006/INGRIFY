@@ -2,6 +2,7 @@ package com.ingrify.app
 
 import android.Manifest
 import android.content.pm.PackageManager
+import android.graphics.Bitmap
 import android.net.Uri
 import android.os.Bundle
 import android.util.Log
@@ -9,13 +10,20 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
+import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.lifecycleScope
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.button.MaterialButton
+import com.yalantis.ucrop.UCrop
+import kotlinx.coroutines.launch
 import java.io.File
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -27,19 +35,23 @@ class ScanFragment : Fragment() {
     private var startScanButton: MaterialButton? = null
     private var uploadButton: MaterialButton? = null
     private var imagePlaceholder: ImageView? = null
+    private lateinit var recentscanstitle: TextView
+    private lateinit var recyclerView: RecyclerView
+    private lateinit var scanAdapter: ScanAdapter
+    private val scanItems = mutableListOf<ScanItem>()
 
     private val FRAGMENT_CONTAINER_ID = R.id.fragment_container
 
-    // Declare launchers as nullable properties
     private var requestPermissionLauncher: ActivityResultLauncher<String>? = null
     private var takePictureLauncher: ActivityResultLauncher<Uri>? = null
-    private var galleryLauncher: ActivityResultLauncher<String>? = null // New: Declare galleryLauncher here
+    private var galleryLauncher: ActivityResultLauncher<String>? = null
+    private var cropImageLauncher: ActivityResultLauncher<android.content.Intent>? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        // Initialize requestPermissionLauncher
-        requestPermissionLauncher = registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted: Boolean ->
+        // Request Camera Permission
+        requestPermissionLauncher = registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
             if (isGranted) {
                 launchCamera()
             } else {
@@ -47,11 +59,11 @@ class ScanFragment : Fragment() {
             }
         }
 
-        // Initialize takePictureLauncher
-        takePictureLauncher = registerForActivityResult(ActivityResultContracts.TakePicture()) { success: Boolean ->
+        // Camera Capture
+        takePictureLauncher = registerForActivityResult(ActivityResultContracts.TakePicture()) { success ->
             if (success) {
                 latestTmpUri?.let { uri ->
-                    loadPreviewFragment(uri)
+                    startCrop(uri)
                 }
             } else {
                 Toast.makeText(context, "Image capture cancelled or failed.", Toast.LENGTH_SHORT).show()
@@ -59,11 +71,25 @@ class ScanFragment : Fragment() {
             }
         }
 
-        // New: Initialize galleryLauncher here in onCreate()
-        galleryLauncher = registerForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
+        // Gallery Selection
+        galleryLauncher = registerForActivityResult(ActivityResultContracts.GetContent()) { uri ->
             uri?.let {
-                loadPreviewFragment(it)
+                startCrop(it)
             } ?: Toast.makeText(context, "No image selected.", Toast.LENGTH_SHORT).show()
+        }
+
+        // Crop Result
+        cropImageLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+            if (result.resultCode == AppCompatActivity.RESULT_OK) {
+                val resultUri = UCrop.getOutput(result.data!!)
+                resultUri?.let {
+                    loadPreviewFragment(it)
+                }
+            } else if (result.resultCode == UCrop.RESULT_ERROR) {
+                val cropError = UCrop.getError(result.data!!)
+                cropError?.printStackTrace()
+                Toast.makeText(context, "Cropping failed: ${cropError?.message}", Toast.LENGTH_SHORT).show()
+            }
         }
     }
 
@@ -71,50 +97,47 @@ class ScanFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        return inflater.inflate(R.layout.fragment_scan, container, false)
+        val view = inflater.inflate(R.layout.fragment_scan, container, false)
+        recyclerView = view.findViewById(R.id.recyclerScan)
+        recyclerView.layoutManager = LinearLayoutManager(requireContext())
+        recyclerView.layoutManager = LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)
+
+
+        // Initialize adapter
+        scanAdapter = ScanAdapter(scanItems)
+        recyclerView.adapter = scanAdapter
+
+
+        return view
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        // Initialize UI elements. Using ?: return to exit early if a critical view is not found.
-        startScanButton = view.findViewById(R.id.btn_start_scan) ?: run {
-            Log.e("ScanFragment", "Error: btn_start_scan not found in layout.")
-            Toast.makeText(context, "Layout error: Scan button missing.", Toast.LENGTH_LONG).show()
-            return
-        }
-        uploadButton = view.findViewById(R.id.btn_upload_image) ?: run {
-            Log.e("ScanFragment", "Error: btn_upload_image not found in layout.")
-            Toast.makeText(context, "Layout error: Upload button missing.", Toast.LENGTH_LONG).show()
-            return
-        }
-        imagePlaceholder = view.findViewById(R.id.imageview) ?: run {
-            Log.e("ScanFragment", "Error: image_placeholder_or_preview not found in layout. Check fragment_scan.xml")
-            Toast.makeText(context, "Layout error: Image placeholder missing.", Toast.LENGTH_LONG).show()
-            return
-        }
+        startScanButton = view.findViewById(R.id.btn_start_scan) ?: return
+        uploadButton = view.findViewById(R.id.btn_upload_image) ?: return
+        imagePlaceholder = view.findViewById(R.id.imageview) ?: return
+        recentscanstitle=view.findViewById(R.id.recent_scans_title)
 
-        // Set initial UI state
+        fetchUserProfile()
+        fetchScanHistory()
+
         resetUiForInitialScan()
 
-        // Set Listeners using safe call operator (?.)
         startScanButton?.setOnClickListener {
             checkCameraPermissionAndLaunch()
         }
 
-        // Updated: Now just launch the gallery using the pre-registered launcher
         uploadButton?.setOnClickListener {
-            galleryLauncher?.launch("image/*") // This just launches, no re-registration
+            galleryLauncher?.launch("image/*")
         }
 
         val backButton: ImageView? = view.findViewById(R.id.iv_back_button_scan)
         backButton?.setOnClickListener {
             parentFragmentManager.popBackStack()
         }
-
     }
 
-    // Simplified UI state for ScanFragment
     private fun resetUiForInitialScan() {
         startScanButton?.visibility = View.VISIBLE
         uploadButton?.visibility = View.VISIBLE
@@ -126,18 +149,11 @@ class ScanFragment : Fragment() {
 
     private fun checkCameraPermissionAndLaunch() {
         when {
-            ContextCompat.checkSelfPermission(
-                requireContext(),
-                Manifest.permission.CAMERA
-            ) == PackageManager.PERMISSION_GRANTED -> {
+            ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED -> {
                 launchCamera()
             }
             shouldShowRequestPermissionRationale(Manifest.permission.CAMERA) -> {
-                Toast.makeText(
-                    context,
-                    "Camera access is needed to take pictures for scanning.",
-                    Toast.LENGTH_LONG
-                ).show()
+                Toast.makeText(context, "Camera access is needed to take pictures for scanning.", Toast.LENGTH_LONG).show()
                 requestPermissionLauncher?.launch(Manifest.permission.CAMERA)
             }
             else -> {
@@ -173,11 +189,79 @@ class ScanFragment : Fragment() {
         }
     }
 
+    private fun startCrop(sourceUri: Uri) {
+        val destinationUri = Uri.fromFile(
+            File(requireContext().cacheDir, "cropped_${System.currentTimeMillis()}.jpg")
+        )
+
+        val options = UCrop.Options().apply {
+            setCompressionFormat(Bitmap.CompressFormat.JPEG)
+            setCompressionQuality(90)
+            setToolbarTitle("Crop Image")
+            setFreeStyleCropEnabled(true)
+            setHideBottomControls(false)
+        }
+
+        val uCrop = UCrop.of(sourceUri, destinationUri)
+            .withOptions(options)
+
+        cropImageLauncher?.launch(uCrop.getIntent(requireContext()))
+    }
+
     private fun loadPreviewFragment(imageUri: Uri) {
         val imagePreviewFragment = ImagePreviewFragment.newInstance(imageUri)
         parentFragmentManager.beginTransaction()
             .replace(FRAGMENT_CONTAINER_ID, imagePreviewFragment)
             .addToBackStack(null)
             .commit()
+    }
+
+    private fun fetchUserProfile() {
+        val authToken = UserSessionManager.getAuthToken()
+
+        if (authToken.isNullOrEmpty()) {
+            recyclerView.visibility = View.GONE
+            context?.let {
+                Toast.makeText(
+                    it,
+                    "Login to save Recent Scans.",
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
+        } else {
+            recentscanstitle.visibility = View.VISIBLE
+            recyclerView.visibility = View.VISIBLE
+        }
+    }
+    private fun fetchScanHistory() {
+        val token = UserSessionManager.getAuthToken()
+        if (token.isNullOrEmpty()) {
+            Toast.makeText(requireContext(), "Login to save Recent Scans.", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        lifecycleScope.launch {
+            try {
+                val response = RetrofitClient.apiService.getScan("Bearer $token")
+                if (response.isSuccessful) {
+                    val scanResponse = response.body()
+                    val scans = scanResponse?.data ?: emptyList()
+                    Log.d("API_RESPONSE", "Raw response: $scanResponse")
+                    Log.d("API_RESPONSE", "Scans count: ${scans.size}")
+                    scans.forEachIndexed { index, scan ->
+                        Log.d("API_RESPONSE", "[$index] -> id=${scan.id}, name=${scan.scan_name}, image=${scan.image_filename}")
+                    }
+                    scanItems.apply {
+                        clear()
+                        addAll(scans)
+                    }
+                    scanAdapter.notifyDataSetChanged()
+                } else {
+                    Toast.makeText(requireContext(), "Please Check your Internet Connection and try again.", Toast.LENGTH_SHORT).show()
+                }
+            } catch (e: Exception) {
+                Toast.makeText(requireContext(), "Please Check your Internet Connection and try again.", Toast.LENGTH_SHORT).show()
+            }
+        }
     }
 }
