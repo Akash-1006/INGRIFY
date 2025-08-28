@@ -12,7 +12,6 @@ import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputMethodManager
 import android.widget.ImageView
 import android.widget.ProgressBar
-import android.widget.ScrollView
 import android.widget.Toast
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
@@ -53,7 +52,6 @@ class AllergenFragment : Fragment() {
             null
         } else {
             inflater.inflate(R.layout.fragment_allergen, container, false)
-
         }
     }
 
@@ -63,14 +61,14 @@ class AllergenFragment : Fragment() {
         tilSearchInput = view.findViewById(R.id.til_search_input_custom)
         searchEditText = view.findViewById(R.id.et_search_query_custom)
         progressBar = view.findViewById(R.id.progress_bar)
-        searchEditText.isClickable = true
-        searchEditText.isFocusable = true
-        searchEditText.isFocusableInTouchMode = true
 
         recyclerView = view.findViewById(R.id.AllergensRecyclerView)
 
-        // Setup RecyclerView
-        allergenAdapter = AllergenAdapter(allergenList)
+        // ✅ Pass delete callback here
+        allergenAdapter = AllergenAdapter(allergenList) { allergen ->
+            deleteAllergenFromServer(allergen)
+        }
+
         recyclerView.layoutManager = LinearLayoutManager(requireContext())
         recyclerView.adapter = allergenAdapter
 
@@ -80,9 +78,6 @@ class AllergenFragment : Fragment() {
         backButton.setOnClickListener {
             parentFragmentManager.popBackStack()
         }
-
-
-
 
         // Send allergen when clicking end icon
         tilSearchInput.setEndIconOnClickListener {
@@ -119,13 +114,11 @@ class AllergenFragment : Fragment() {
     private fun addAllergenToServer(allergen: String) {
         hideKeyboard(searchEditText)
         progressBar.visibility = View.VISIBLE
-
-        // Disable input while request is ongoing
         searchEditText.isEnabled = false
 
         viewLifecycleOwner.lifecycleScope.launch {
             try {
-                val token = UserSessionManager.getAuthToken() // fetch stored JWT
+                val token = UserSessionManager.getAuthToken()
 
                 if (token.isNullOrEmpty()) {
                     Toast.makeText(requireContext(), "Please login to manage allergens.", Toast.LENGTH_LONG).show()
@@ -135,16 +128,17 @@ class AllergenFragment : Fragment() {
                 val request = AddAllergensRequest(allergens = listOf(allergen))
 
                 val response = withContext(Dispatchers.IO) {
-                    RetrofitClient.apiService.addAllergens("Bearer ${token}", request)
+                    RetrofitClient.apiService.addAllergens("Bearer $token", request)
                 }
 
                 if (response.isSuccessful) {
                     val body = response.body()
                     if (body != null) {
-                        if(body.allergens_added==0){
-                            Toast.makeText(requireContext(),"Allergen already exists",Toast.LENGTH_LONG).show()
+                        if (body.allergens_added == 0) {
+                            Toast.makeText(requireContext(), "Allergen already exists", Toast.LENGTH_LONG).show()
+                        } else {
+                            Toast.makeText(requireContext(), "Allergen saved successfully", Toast.LENGTH_LONG).show()
                         }
-                        Toast.makeText(requireContext(),"Allergen saved successfully",Toast.LENGTH_LONG).show()
                         fetchAllergens()
                         Log.d("AllergenFragment", "Added ${body.allergens_added} allergens")
                     } else {
@@ -152,11 +146,7 @@ class AllergenFragment : Fragment() {
                     }
                 } else {
                     val error = response.errorBody()?.string()
-                    Toast.makeText(
-                        requireContext(),
-                        "Error: ${response.code()} - $error",
-                        Toast.LENGTH_LONG
-                    ).show()
+                    Toast.makeText(requireContext(), "Error: ${response.code()} - $error", Toast.LENGTH_LONG).show()
                     Log.e("AllergenFragment", "API Error: $error")
                 }
 
@@ -170,10 +160,45 @@ class AllergenFragment : Fragment() {
         }
     }
 
+    private fun deleteAllergenFromServer(allergen: Allergen) {
+        progressBar.visibility = View.VISIBLE
+
+        lifecycleScope.launch {
+            try {
+                val token = UserSessionManager.getAuthToken()
+                if (token.isNullOrEmpty()) {
+                    Toast.makeText(requireContext(), "Please login to manage allergens.", Toast.LENGTH_LONG).show()
+                    return@launch
+                }
+                val request = DeleteAllergensRequest(allergen.name)
+
+                val response = withContext(Dispatchers.IO) {
+                    RetrofitClient.apiService.deleteAllergen("Bearer $token", request)
+                }
+
+                if (response.isSuccessful) {
+                    Toast.makeText(requireContext(), "Allergen deleted", Toast.LENGTH_SHORT).show()
+                    allergenAdapter.removeItem(allergen)
+                } else {
+                    val error = response.errorBody()?.string()
+                    Toast.makeText(requireContext(), "Failed: ${response.code()} - $error", Toast.LENGTH_LONG).show()
+                    Log.e("AllergenFragment", "Delete API Error: $error")
+                }
+
+            } catch (e: Exception) {
+                Log.e("AllergenFragment", "Exception: ${e.localizedMessage}", e)
+                Toast.makeText(requireContext(), "Delete failed: ${e.localizedMessage}", Toast.LENGTH_LONG).show()
+            } finally {
+                progressBar.visibility = View.GONE
+            }
+        }
+    }
+
     private fun hideKeyboard(view: View) {
         val imm = requireContext().getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
         imm.hideSoftInputFromWindow(view.windowToken, 0)
     }
+
     private fun fetchAllergens() {
         progressBar.visibility = View.VISIBLE
 
@@ -188,9 +213,10 @@ class AllergenFragment : Fragment() {
 
                     allergenList.clear()
                     allergenList.addAll(allergens)
-                    Log.d("AllergenFragment", "Allergen count: ${allergenList.size}")
                     allergenAdapter.notifyDataSetChanged()
-                    UserSessionManager.saveAllergens(allergenStrings)
+                    Log.d("AllergenFragment", "Allergen count: ${allergenList.size}")
+
+                    AllergenManager.saveAllergens(requireContext(), allergenStrings)
                 } else {
                     Toast.makeText(requireContext(), "Failed to load allergens", Toast.LENGTH_SHORT).show()
                 }

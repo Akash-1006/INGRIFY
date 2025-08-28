@@ -33,7 +33,16 @@
             android:layout_marginStart="16dp"
             android:fontFamily="@font/poppins_regular"
             tools:text="Allegen name"
+            android:layout_weight="1"
             android:textColor="#FFFFFF"
             android:textSize="16sp" />
+        <ImageView
+            android:id="@+id/allergen_delete"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:src="@drawable/ic_delete"
+            android:layout_marginEnd="10dp"
+            android:contentDescription="Delete Allergen Icon"
+            app:tint="#D9D9D9" />
     </LinearLayout>
 </com.google.android.material.card.MaterialCardView>

@@ -101,14 +101,10 @@ class ScanResultFragment : Fragment() {
             }
             val safetyScore = ocrResponse.overallSafety?.score ?: -1
 
-            val hazardScore = getHazardScoreFromAnalysis(safetyScore)
+            var hazardScore = getHazardScoreFromAnalysis(safetyScore)
 
-            hazardBar.post {
-                val barWidth = hazardBar.width - indicator.width
-                val translationX = hazardScore * barWidth
-                indicator.translationX = translationX
-            }
-            val savedAllergens = UserSessionManager.getAllergens()
+
+            val savedAllergens = AllergenManager.getAllergens(requireContext())
             val matchedAllergens = ingredientList.filter { ingredient ->
                 savedAllergens.any { saved ->
                     saved.trim().equals(ingredient.name.trim(), ignoreCase = true)
@@ -129,12 +125,19 @@ class ScanResultFragment : Fragment() {
                     }
                     allergenListLayout.addView(tv)
                 }
+                if (hazardScore < 0.75f) {
+                    hazardScore = 1.0f
+                }
             } else {
                 allergenFound.visibility=View.GONE
                 allergenListLayout.visibility = View.GONE
             }
+            hazardBar.post {
+                val barWidth = hazardBar.width - indicator.width
+                val translationX = hazardScore * barWidth
+                indicator.translationX = translationX
+            }
 
-            // Expand/Collapse Allergens card
             view.findViewById<MaterialCardView>(R.id.card_allergens).setOnClickListener {
                 allergensExpanded = !allergensExpanded
                 allergenListLayout.visibility = if (allergensExpanded) View.VISIBLE else View.GONE
@@ -143,7 +146,6 @@ class ScanResultFragment : Fragment() {
                 )
             }
 
-            // Update the adapter with the list of ingredients
             ingredientAdapter.updateData(ocrResponse.analysisResult)
         } else if (errorMessage != null) {
             Toast.makeText(requireContext(), "Please Check your Internet Connection and try again.", Toast.LENGTH_LONG).show()

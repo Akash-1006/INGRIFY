@@ -4,6 +4,7 @@ import android.Manifest
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.net.Uri
+import com.google.gson.reflect.TypeToken
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -22,6 +23,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.button.MaterialButton
+import com.google.gson.Gson
 import com.yalantis.ucrop.UCrop
 import kotlinx.coroutines.launch
 import java.io.File
@@ -103,9 +105,39 @@ class ScanFragment : Fragment() {
         recyclerView.layoutManager = LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)
 
 
-        // Initialize adapter
-        scanAdapter = ScanAdapter(scanItems)
+        scanAdapter = ScanAdapter(scanItems) { clickedItem ->
+            val gson = Gson()
+
+            // Step 1: Parse the analysis string into a list of Ingredient
+            val analysisList: List<Ingredient> = gson.fromJson(
+                clickedItem.analysis,
+                object : TypeToken<List<Ingredient>>() {}.type
+            )
+
+            // Step 2: Build an OcrResponse manually
+            val ocrResponse = OcrResponse(
+                status = "success",
+                ocrResult = clickedItem.raw_ocr_text,
+                analysisResult = analysisList,
+                imageFilename = clickedItem.image_filename,
+                searchReference = clickedItem.scan_name,
+                overallSafety = clickedItem.overall_safety
+            )
+
+            // Step 3: Open ScanResultFragment with this OcrResponse
+            val fragment = ScanResultFragment.newInstance(
+                ocrResponse,
+                null // no error
+            )
+
+            parentFragmentManager.beginTransaction()
+                .replace(R.id.fragment_container, fragment)
+                .addToBackStack(null)
+                .commit()
+        }
+
         recyclerView.adapter = scanAdapter
+
 
 
         return view

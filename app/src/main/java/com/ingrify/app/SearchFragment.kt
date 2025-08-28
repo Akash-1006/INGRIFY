@@ -71,7 +71,19 @@ class SearchFragment : Fragment() {
 
         recyclerView = view.findViewById(R.id.SearchRecyclerView)
 
-        searchAdapter = SearchAdapter(searchList)
+        searchAdapter = SearchAdapter(searchList) { searchItem ->
+            try {
+                val analysis = gson.fromJson(searchItem.analysis, AnalysisResult::class.java)
+                val fragment = SearchResultFragment.newInstance(searchItem.query, analysis)
+                parentFragmentManager.beginTransaction()
+                    .replace(FRAGMENT_CONTAINER_ID, fragment)
+                    .addToBackStack(null)
+                    .commit()
+            } catch (e: Exception) {
+                Toast.makeText(requireContext(), "Failed to load analysis", Toast.LENGTH_SHORT).show()
+                Log.e("SearchFragment", "Error parsing analysis JSON", e)
+            }
+        }
         recyclerView.layoutManager = LinearLayoutManager(requireContext())
         recyclerView.adapter = searchAdapter
         fetchSearchHistory()
@@ -145,7 +157,6 @@ class SearchFragment : Fragment() {
 
         viewLifecycleOwner.lifecycleScope.launch {
             try {
-                // Construct JSON body
                 val jsonString = """{"ingredient_name":"$query"}"""
                 val requestBody = jsonString.toRequestBody("application/json".toMediaType())
 

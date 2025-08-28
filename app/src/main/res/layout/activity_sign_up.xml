@@ -100,6 +100,7 @@
             android:fontFamily="@font/poppins_regular"
             android:hint="Name"
             android:inputType="textPersonName"
+            android:textCursorDrawable="@null"
             android:textColor="@color/input_text_color_dark_mode"
             android:textColorHint="@color/input_hint_color_dark_mode"
             android:textSize="16sp" />
@@ -130,6 +131,7 @@
             android:layout_height="wrap_content"
             android:fontFamily="@font/poppins_regular"
             android:hint="Age"
+            android:textCursorDrawable="@null"
             android:inputType="number"
             android:textColor="@color/input_text_color_dark_mode"
             android:textColorHint="@color/input_hint_color_dark_mode"
@@ -162,6 +164,7 @@
             android:fontFamily="@font/poppins_regular"
             android:hint="Username"
             android:inputType="text"
+            android:textCursorDrawable="@null"
             android:textColor="@color/input_text_color_dark_mode"
             android:textColorHint="@color/input_hint_color_dark_mode"
             android:textSize="16sp" />
@@ -196,6 +199,7 @@
             android:fontFamily="@font/poppins_regular"
             android:hint="Create New Password"
             android:inputType="textPassword"
+            android:textCursorDrawable="@null"
             android:textColor="@color/input_text_color_dark_mode"
             android:textColorHint="@color/input_hint_color_dark_mode"
             android:textSize="16sp" />
@@ -229,6 +233,7 @@
             android:fontFamily="@font/poppins_regular"
             android:hint="Confirm New Password"
             android:inputType="textPassword"
+            android:textCursorDrawable="@null"
             android:textColor="@color/input_text_color_dark_mode"
             android:textColorHint="@color/input_hint_color_dark_mode"
             android:textSize="16sp" />

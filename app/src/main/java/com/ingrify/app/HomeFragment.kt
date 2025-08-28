@@ -19,6 +19,8 @@ import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.card.MaterialCardView
 import com.google.android.material.navigation.NavigationView
+import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -49,9 +51,39 @@ class HomeFragment : Fragment() {
         recyclerView.layoutManager = LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)
 
 
-        // Initialize adapter
-        scanAdapter = ScanAdapter(scanItems)
+        scanAdapter = ScanAdapter(scanItems) { clickedItem ->
+            val gson = Gson()
+
+            // Step 1: Parse the analysis string into a list of Ingredient
+            val analysisList: List<Ingredient> = gson.fromJson(
+                clickedItem.analysis,
+                object : TypeToken<List<Ingredient>>() {}.type
+            )
+
+            // Step 2: Build an OcrResponse manually
+            val ocrResponse = OcrResponse(
+                status = "success",
+                ocrResult = clickedItem.raw_ocr_text,
+                analysisResult = analysisList,
+                imageFilename = clickedItem.image_filename,
+                searchReference = clickedItem.scan_name,
+                overallSafety = clickedItem.overall_safety
+            )
+
+            // Step 3: Open ScanResultFragment with this OcrResponse
+            val fragment = ScanResultFragment.newInstance(
+                ocrResponse,
+                null // no error
+            )
+
+            parentFragmentManager.beginTransaction()
+                .replace(R.id.fragment_container, fragment)
+                .addToBackStack(null)
+                .commit()
+        }
+
         recyclerView.adapter = scanAdapter
+
         drawerLayout = view.findViewById(R.id.drawer_layout_home)
         navigationView = view.findViewById(R.id.navigation_view_home)
         hamburger = view.findViewById(R.id.Hamburger_menu)

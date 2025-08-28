@@ -8,6 +8,7 @@ import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.DELETE
 import retrofit2.http.GET
+import retrofit2.http.HTTP
 import retrofit2.http.Header
 import retrofit2.http.Headers
 import retrofit2.http.Multipart
@@ -57,6 +58,13 @@ interface ApiService {
         @Header("Authorization") token: String,
     ): Response<AllergenResponse>
 
+    @HTTP(method = "DELETE", path = "allergens", hasBody = true)
+    suspend fun deleteAllergen(
+        @Header("Authorization") token: String,
+        @Body request: DeleteAllergensRequest
+    ): Response<AddAllergensResponse>
+
+
     @GET("history/search")
     suspend fun getSearch(
         @Header("Authorization") token: String,
@@ -98,6 +106,9 @@ data class IngredientResponse(
 
 data class AddAllergensRequest(
     val allergens: List<String>
+)
+data class DeleteAllergensRequest(
+    val allergen: String
 )
 
 // Response
