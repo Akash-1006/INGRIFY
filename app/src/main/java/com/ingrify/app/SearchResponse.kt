@@ -8,7 +8,7 @@ data class SearchResponse(
     val type: String
 )
 
-// Each item
+
 data class SearchItem(
     val id: Int,
     val query: String,

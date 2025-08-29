@@ -7,11 +7,10 @@ import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.google.gson.Gson
-
-class SearchAdapter(private val searchList: List<SearchItem>) :
-    RecyclerView.Adapter<SearchAdapter.SearchViewHolder>() {
-
-    private val gson = Gson()
+class SearchAdapter(
+    private val searchList: List<SearchItem>,
+    private val onItemClick: (SearchItem) -> Unit
+) : RecyclerView.Adapter<SearchAdapter.SearchViewHolder>() {
 
     class SearchViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val queryText: TextView = itemView.findViewById(R.id.tv_ingredient_name)
@@ -26,9 +25,12 @@ class SearchAdapter(private val searchList: List<SearchItem>) :
     override fun onBindViewHolder(holder: SearchViewHolder, position: Int) {
         val item = searchList[position]
 
-        // Set query
         holder.queryText.text = item.query
 
+        // Handle click
+        holder.itemView.setOnClickListener {
+            onItemClick(item)
+        }
     }
 
     override fun getItemCount(): Int = searchList.size

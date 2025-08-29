@@ -12,6 +12,7 @@ import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputMethodManager
 import android.widget.ImageView
 import android.widget.ProgressBar
+import android.widget.TextView
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
@@ -35,6 +36,7 @@ class SearchFragment : Fragment() {
     private val searchList = mutableListOf<SearchItem>()
     private lateinit var searchAdapter: SearchAdapter
     private lateinit var recyclerView: RecyclerView
+    private lateinit var searchtext:TextView
 
 
 
@@ -60,6 +62,7 @@ class SearchFragment : Fragment() {
         tilSearchInput = view.findViewById(R.id.til_search_input_custom)
         searchEditText = view.findViewById(R.id.et_search_query_custom)
         progressBar = view.findViewById(R.id.progress_bar)
+        searchtext=view.findViewById(R.id.tv_recent_search_title)
 
         // Store the original input type for the searchEditText
         originalSearchInputType = searchEditText.inputType
@@ -71,7 +74,19 @@ class SearchFragment : Fragment() {
 
         recyclerView = view.findViewById(R.id.SearchRecyclerView)
 
-        searchAdapter = SearchAdapter(searchList)
+        searchAdapter = SearchAdapter(searchList) { searchItem ->
+            try {
+                val analysis = gson.fromJson(searchItem.analysis, AnalysisResult::class.java)
+                val fragment = SearchResultFragment.newInstance(searchItem.query, analysis)
+                parentFragmentManager.beginTransaction()
+                    .replace(FRAGMENT_CONTAINER_ID, fragment)
+                    .addToBackStack(null)
+                    .commit()
+            } catch (e: Exception) {
+                Toast.makeText(requireContext(), "Failed to load analysis", Toast.LENGTH_SHORT).show()
+                Log.e("SearchFragment", "Error parsing analysis JSON", e)
+            }
+        }
         recyclerView.layoutManager = LinearLayoutManager(requireContext())
         recyclerView.adapter = searchAdapter
         fetchSearchHistory()
@@ -145,7 +160,6 @@ class SearchFragment : Fragment() {
 
         viewLifecycleOwner.lifecycleScope.launch {
             try {
-                // Construct JSON body
                 val jsonString = """{"ingredient_name":"$query"}"""
                 val requestBody = jsonString.toRequestBody("application/json".toMediaType())
 
@@ -238,31 +252,45 @@ class SearchFragment : Fragment() {
         imm.hideSoftInputFromWindow(view.windowToken, 0)
     }
     private fun fetchSearchHistory() {
+        // Show the progress bar while fetching data
         progressBar.visibility = View.VISIBLE
+
+        // Hide the search text and RecyclerView initially
+        searchtext.visibility = View.GONE
+        recyclerView.visibility = View.GONE // Assuming you have a reference to your RecyclerView here
 
         lifecycleScope.launch {
             try {
                 val token = UserSessionManager.getAuthToken()
 
-                if (token.isNullOrEmpty())
-                {
+                if (token.isNullOrEmpty()) {
+                    // User is not logged in, hide everything and show a Toast
                     Toast.makeText(requireContext(), "Login to save recent history", Toast.LENGTH_LONG).show()
-                }
-                else{
-                val response = RetrofitClient.apiService.getSearch("Bearer $token")
-                if (response.isSuccessful) {
-                    val searchItems = response.body()?.data ?: emptyList()
-
-                    searchList.clear()
-                    searchList.addAll(searchItems)
-                    Log.d("SearchHistoryFragment", "Search history count: ${searchList.size}")
-                    searchAdapter.notifyDataSetChanged()
                 } else {
-                    Toast.makeText(requireContext(), "Failed to load search history", Toast.LENGTH_SHORT).show()
-                }}
+                    val response = RetrofitClient.apiService.getSearch("Bearer $token")
+                    if (response.isSuccessful) {
+                        val searchItems = response.body()?.data ?: emptyList()
+                        searchList.clear()
+                        searchList.addAll(searchItems)
+                        Log.d("SearchHistoryFragment", "Search history count: ${searchList.size}")
+                        searchAdapter.notifyDataSetChanged()
+
+                        // Check if the list is empty and set visibility accordingly
+                        if (searchList.isEmpty()) {
+                            searchtext.visibility = View.GONE
+                            recyclerView.visibility = View.GONE
+                        } else {
+                            searchtext.visibility = View.VISIBLE
+                            recyclerView.visibility = View.VISIBLE
+                        }
+                    } else {
+                        Toast.makeText(requireContext(), "Failed to load search history", Toast.LENGTH_SHORT).show()
+                    }
+                }
             } catch (e: Exception) {
                 Toast.makeText(requireContext(), "Error: ${e.message}", Toast.LENGTH_SHORT).show()
             } finally {
+                // Always hide the progress bar when the process is complete
                 progressBar.visibility = View.GONE
             }
         }

@@ -13,7 +13,8 @@ import com.google.android.material.button.MaterialButton
 import com.ingrify.app.RetrofitClient.BASE_URL
 
 class ScanAdapter(
-    private var items: List<ScanItem>
+    private var items: List<ScanItem>,
+    private val onItemClick: (ScanItem) -> Unit   // ✅ callback
 ) : RecyclerView.Adapter<ScanAdapter.ScanViewHolder>() {
 
     inner class ScanViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
@@ -37,16 +38,20 @@ class ScanAdapter(
             val url = "$BASE_URL/static/uploads/${item.image_filename}"
             Glide.with(holder.itemView.context)
                 .load(url)
-                .placeholder(R.drawable.placeholder_bg) // fallback drawable
+                .placeholder(R.drawable.placeholder_bg)
                 .into(holder.imgScan)
         } else {
             holder.imgScan.setImageResource(R.drawable.placeholder_bg)
         }
 
-        // ✅ Safety meter color
         val score = item.overall_safety?.score ?: 0
         val barColor = getColorFromScore(score)
         holder.colorBar.backgroundTintList = ColorStateList.valueOf(barColor)
+
+        // ✅ Click sends item back
+        holder.itemView.setOnClickListener {
+            onItemClick(item)
+        }
     }
 
     override fun getItemCount(): Int = items.size
@@ -55,6 +60,8 @@ class ScanAdapter(
         items = newItems
         notifyDataSetChanged()
     }
+
+    // getColorFromScore() stays the same...
 
     // ✅ Map score (0 = green, 100 = red)
     private fun getColorFromScore(score: Int): Int {

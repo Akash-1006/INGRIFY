@@ -19,6 +19,8 @@ import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.card.MaterialCardView
 import com.google.android.material.navigation.NavigationView
+import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -49,9 +51,39 @@ class HomeFragment : Fragment() {
         recyclerView.layoutManager = LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)
 
 
-        // Initialize adapter
-        scanAdapter = ScanAdapter(scanItems)
+        scanAdapter = ScanAdapter(scanItems) { clickedItem ->
+            val gson = Gson()
+
+            // Step 1: Parse the analysis string into a list of Ingredient
+            val analysisList: List<Ingredient> = gson.fromJson(
+                clickedItem.analysis,
+                object : TypeToken<List<Ingredient>>() {}.type
+            )
+
+            // Step 2: Build an OcrResponse manually
+            val ocrResponse = OcrResponse(
+                status = "success",
+                ocrResult = clickedItem.raw_ocr_text,
+                analysisResult = analysisList,
+                imageFilename = clickedItem.image_filename,
+                searchReference = clickedItem.scan_name,
+                overallSafety = clickedItem.overall_safety
+            )
+
+            // Step 3: Open ScanResultFragment with this OcrResponse
+            val fragment = ScanResultFragment.newInstance(
+                ocrResponse,
+                null // no error
+            )
+
+            parentFragmentManager.beginTransaction()
+                .replace(R.id.fragment_container, fragment)
+                .addToBackStack(null)
+                .commit()
+        }
+
         recyclerView.adapter = scanAdapter
+
         drawerLayout = view.findViewById(R.id.drawer_layout_home)
         navigationView = view.findViewById(R.id.navigation_view_home)
         hamburger = view.findViewById(R.id.Hamburger_menu)
@@ -138,11 +170,10 @@ class HomeFragment : Fragment() {
 
     private fun fetchUserProfile() {
         val authToken = UserSessionManager.getAuthToken()
-
+        recentscanstitle.visibility = View.GONE
+        recyclerView.visibility = View.GONE
         if (authToken.isNullOrEmpty()) {
             welcomeMessageTextView.text = "Hello, User!!"
-            recentscanstitle.visibility = View.GONE
-            recyclerView.visibility = View.GONE
             context?.let {
                 Toast.makeText(
                     it,
@@ -153,38 +184,45 @@ class HomeFragment : Fragment() {
         } else {
             val user = UserSessionManager.getName()
             welcomeMessageTextView.text = "Hello, $user!!"
-            recentscanstitle.visibility = View.VISIBLE
-            recyclerView.visibility = View.VISIBLE
         }
     }
     private fun fetchScanHistory() {
         val token = UserSessionManager.getAuthToken()
-        if (token.isNullOrEmpty()) {
-            Toast.makeText(requireContext(), "Please log in to personalize your experience.", Toast.LENGTH_SHORT).show()
-            return
-        }
 
         lifecycleScope.launch {
             try {
                 val response = RetrofitClient.apiService.getScan("Bearer $token")
                 if (response.isSuccessful) {
-                    val scanResponse = response.body()
-                    val scans = scanResponse?.data ?: emptyList()
-                    Log.d("API_RESPONSE", "Raw response: $scanResponse")
+                    val scans = response.body()?.data.orEmpty()
+
                     Log.d("API_RESPONSE", "Scans count: ${scans.size}")
-                    scans.forEachIndexed { index, scan ->
-                        Log.d("API_RESPONSE", "[$index] -> id=${scan.id}, name=${scan.scan_name}, image=${scan.image_filename}")
-                    }
+
                     scanItems.apply {
                         clear()
                         addAll(scans)
                     }
                     scanAdapter.notifyDataSetChanged()
+
+                    // Always update visibility on the main thread
+                    withContext(Dispatchers.Main) {
+                        if (scans.isNullOrEmpty()) {
+                            recentscanstitle.visibility = View.GONE
+                            recyclerView.visibility = View.GONE
+                        } else {
+                            recentscanstitle.visibility = View.VISIBLE
+                            recyclerView.visibility = View.VISIBLE
+                        }
+                    }
+
+                    scans.forEachIndexed { index, scan ->
+                        Log.d("API_RESPONSE", "[$index] -> id=${scan.id}, name=${scan.scan_name}, image=${scan.image_filename}")
+                    }
+
                 } else {
-                    Toast.makeText(requireContext(), "Please Check your internet connection and Try again", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(requireContext(), "Please check your Internet Connection and try again.", Toast.LENGTH_SHORT).show()
                 }
             } catch (e: Exception) {
-                Toast.makeText(requireContext(), "Please Check your internet connection and Try again", Toast.LENGTH_SHORT).show()
+                Toast.makeText(requireContext(), "Please check your Internet Connection and try again.", Toast.LENGTH_SHORT).show()
             }
         }
     }
