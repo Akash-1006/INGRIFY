@@ -25,7 +25,9 @@ import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.button.MaterialButton
 import com.google.gson.Gson
 import com.yalantis.ucrop.UCrop
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.io.File
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -151,7 +153,6 @@ class ScanFragment : Fragment() {
         imagePlaceholder = view.findViewById(R.id.imageview) ?: return
         recentscanstitle=view.findViewById(R.id.recent_scans_title)
 
-        fetchUserProfile()
         fetchScanHistory()
 
         resetUiForInitialScan()
@@ -248,25 +249,10 @@ class ScanFragment : Fragment() {
             .commit()
     }
 
-    private fun fetchUserProfile() {
-        val authToken = UserSessionManager.getAuthToken()
-
-        if (authToken.isNullOrEmpty()) {
-            recyclerView.visibility = View.GONE
-            context?.let {
-                Toast.makeText(
-                    it,
-                    "Login to save Recent Scans.",
-                    Toast.LENGTH_SHORT
-                ).show()
-            }
-        } else {
-            recentscanstitle.visibility = View.VISIBLE
-            recyclerView.visibility = View.VISIBLE
-        }
-    }
     private fun fetchScanHistory() {
         val token = UserSessionManager.getAuthToken()
+        recentscanstitle.visibility = View.GONE
+        recyclerView.visibility = View.GONE
         if (token.isNullOrEmpty()) {
             Toast.makeText(requireContext(), "Login to save Recent Scans.", Toast.LENGTH_SHORT).show()
             return
@@ -276,24 +262,39 @@ class ScanFragment : Fragment() {
             try {
                 val response = RetrofitClient.apiService.getScan("Bearer $token")
                 if (response.isSuccessful) {
-                    val scanResponse = response.body()
-                    val scans = scanResponse?.data ?: emptyList()
-                    Log.d("API_RESPONSE", "Raw response: $scanResponse")
+                    val scans = response.body()?.data.orEmpty()
+
                     Log.d("API_RESPONSE", "Scans count: ${scans.size}")
-                    scans.forEachIndexed { index, scan ->
-                        Log.d("API_RESPONSE", "[$index] -> id=${scan.id}, name=${scan.scan_name}, image=${scan.image_filename}")
-                    }
+
                     scanItems.apply {
                         clear()
                         addAll(scans)
                     }
                     scanAdapter.notifyDataSetChanged()
+
+                    // Always update visibility on the main thread
+                    withContext(Dispatchers.Main) {
+                        if (scans.isNullOrEmpty()) {
+                            recentscanstitle.visibility = View.GONE
+                            recyclerView.visibility = View.GONE
+                        } else {
+                            recentscanstitle.visibility = View.VISIBLE
+                            recyclerView.visibility = View.VISIBLE
+                        }
+                    }
+
+                    scans.forEachIndexed { index, scan ->
+                        Log.d("API_RESPONSE", "[$index] -> id=${scan.id}, name=${scan.scan_name}, image=${scan.image_filename}")
+                    }
+
                 } else {
-                    Toast.makeText(requireContext(), "Please Check your Internet Connection and try again.", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(requireContext(), "Please check your Internet Connection and try again.", Toast.LENGTH_SHORT).show()
                 }
             } catch (e: Exception) {
-                Toast.makeText(requireContext(), "Please Check your Internet Connection and try again.", Toast.LENGTH_SHORT).show()
+                Toast.makeText(requireContext(), "Please check your Internet Connection and try again.", Toast.LENGTH_SHORT).show()
             }
         }
     }
+
+
 }

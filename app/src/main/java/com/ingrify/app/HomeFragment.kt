@@ -170,11 +170,10 @@ class HomeFragment : Fragment() {
 
     private fun fetchUserProfile() {
         val authToken = UserSessionManager.getAuthToken()
-
+        recentscanstitle.visibility = View.GONE
+        recyclerView.visibility = View.GONE
         if (authToken.isNullOrEmpty()) {
             welcomeMessageTextView.text = "Hello, User!!"
-            recentscanstitle.visibility = View.GONE
-            recyclerView.visibility = View.GONE
             context?.let {
                 Toast.makeText(
                     it,
@@ -185,38 +184,45 @@ class HomeFragment : Fragment() {
         } else {
             val user = UserSessionManager.getName()
             welcomeMessageTextView.text = "Hello, $user!!"
-            recentscanstitle.visibility = View.VISIBLE
-            recyclerView.visibility = View.VISIBLE
         }
     }
     private fun fetchScanHistory() {
         val token = UserSessionManager.getAuthToken()
-        if (token.isNullOrEmpty()) {
-            Toast.makeText(requireContext(), "Please log in to personalize your experience.", Toast.LENGTH_SHORT).show()
-            return
-        }
 
         lifecycleScope.launch {
             try {
                 val response = RetrofitClient.apiService.getScan("Bearer $token")
                 if (response.isSuccessful) {
-                    val scanResponse = response.body()
-                    val scans = scanResponse?.data ?: emptyList()
-                    Log.d("API_RESPONSE", "Raw response: $scanResponse")
+                    val scans = response.body()?.data.orEmpty()
+
                     Log.d("API_RESPONSE", "Scans count: ${scans.size}")
-                    scans.forEachIndexed { index, scan ->
-                        Log.d("API_RESPONSE", "[$index] -> id=${scan.id}, name=${scan.scan_name}, image=${scan.image_filename}")
-                    }
+
                     scanItems.apply {
                         clear()
                         addAll(scans)
                     }
                     scanAdapter.notifyDataSetChanged()
+
+                    // Always update visibility on the main thread
+                    withContext(Dispatchers.Main) {
+                        if (scans.isNullOrEmpty()) {
+                            recentscanstitle.visibility = View.GONE
+                            recyclerView.visibility = View.GONE
+                        } else {
+                            recentscanstitle.visibility = View.VISIBLE
+                            recyclerView.visibility = View.VISIBLE
+                        }
+                    }
+
+                    scans.forEachIndexed { index, scan ->
+                        Log.d("API_RESPONSE", "[$index] -> id=${scan.id}, name=${scan.scan_name}, image=${scan.image_filename}")
+                    }
+
                 } else {
-                    Toast.makeText(requireContext(), "Please Check your internet connection and Try again", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(requireContext(), "Please check your Internet Connection and try again.", Toast.LENGTH_SHORT).show()
                 }
             } catch (e: Exception) {
-                Toast.makeText(requireContext(), "Please Check your internet connection and Try again", Toast.LENGTH_SHORT).show()
+                Toast.makeText(requireContext(), "Please check your Internet Connection and try again.", Toast.LENGTH_SHORT).show()
             }
         }
     }
