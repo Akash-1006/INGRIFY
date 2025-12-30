@@ -1,3 +1,5 @@
+<img width="698" height="326" alt="image" src="https://github.com/user-attachments/assets/f99df1f3-2ad2-4c87-992b-ad455f59484f" />
+
 # INGRIFY - INGRedients Identified For You
 
 Ingrify is an Android application that helps users understand what’s really inside the products they use every day.
