@@ -66,10 +66,6 @@ Consumers seeking transparency in products
 Parents and caregivers
 
 
-# Personal Note
-
-This is my first Android application, and I built Ingrify completely from scratch, from UI/UX design and app architecture to backend development, API integration, and production deployment.
-
 # Impact
 
 Ingrify promotes informed consumer choices by improving awareness of ingredient safety, helping users avoid harmful substances and misleading marketing claims.
@@ -78,4 +74,8 @@ Ingrify promotes informed consumer choices by improving awareness of ingredient 
 
 The app is live on the Google Play Store:
  https://play.google.com/store/apps/details?id=com.simats.ingrify
+
+# Personal Note
+
+This is my first Android application, and I built Ingrify completely from scratch, from UI/UX design and app architecture to backend development, API integration, and production deployment.
 
